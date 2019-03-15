@@ -1,0 +1,31 @@
+{
+  "name": "artist",
+  "version": "1.0.0",
+  "description": "arstist",
+  "main": "server.js",
+  "scripts": {
+    "client": "cd client && npm start",
+    "test": "mocha",
+    "server": "nodemon server.js",
+    "dev": "concurrently --kill-others-on-fail \"npm:server\" \"npm:client\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cluster": "^0.7.7",
+    "connect-busboy": "0.0.2",
+    "connect-multiparty": "^2.2.0",
+    "convert-excel-to-json": "^1.6.1",
+    "express": "^4.16.4",
+    "fs-extra": "^7.0.1",
+    "mocha": "^5.2.0",
+    "moment": "^2.24.0",
+    "mongoose": "^5.4.8",
+    "pandas-js": "^0.2.4",
+    "python-shell": "^1.0.7"
+  },
+  "devDependencies": {
+    "concurrently": "^4.0.1"
+  }
+}

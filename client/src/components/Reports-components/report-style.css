@@ -1,0 +1,13 @@
+.Btn-Blue-BG.active {
+  background-color: blue !important;
+}
+
+.btnHover {
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+.btnHover > i:hover {
+  background-color: #4caf50; /* Green */
+  color: white;
+}
