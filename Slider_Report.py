@@ -68,7 +68,7 @@ jsonObject = {
 for row in range(Dataframe.__len__()):
     if Dataframe.iloc[row]['Range'] == 'In_Range':
         jsonObj = {
-            "label": "{} {}".format("Report", Dataframe.iloc[2]['Index']),
+            "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
             "pointStyle": "circle",
             "data": [{
                 "x": Dataframe.iloc[row]['IQR_main'],

@@ -5,8 +5,9 @@ import Button from "@material-ui/core/Button";
 //import StepSlider from "./StepSlider";
 import Chart from "./Chart";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { SlideCom } from "./Slider-rc";
+import SlideCom from "./Slider-rc";
 import { inspect } from "util"; // or directly
+import { From_DATE_SESSION, TO_DATE_SESSION } from "../constants";
 
 import SnackbarNotification from "../Util-Component/SnackbarNotification";
 import "./report-style.css";
@@ -37,6 +38,7 @@ import { timingSafeEqual } from "crypto";
 class Report extends Component {
   state = {
     fileBeingProcessedSnackbaropen: false,
+
     vertical: "top",
     horizontal: "center",
     isFileUploaded: false,
@@ -61,8 +63,14 @@ class Report extends Component {
     datePickerOpen: false,
     // The first commit of Material-UI
 
-    datePickerSelectedDateFrom: new Date("2014-08-18T21:11:54"),
-    datePickerSelectedDateTo: new Date("2019-04-18T21:11:54")
+    datePickerSelectedDateFrom:
+      localStorage.getItem(From_DATE_SESSION) === null
+        ? new Date()
+        : new Date(localStorage.getItem(From_DATE_SESSION)),
+    datePickerSelectedDateTo:
+      localStorage.getItem(TO_DATE_SESSION) === null
+        ? new Date()
+        : new Date(localStorage.getItem(TO_DATE_SESSION))
   };
 
   handleFileBeingProcessedSnackbarClick = () => {
@@ -85,15 +93,21 @@ class Report extends Component {
       this.state.datePickerSelectedDateFrom +
       " To:" +
       this.state.datePickerSelectedDateTo;
-    //this.handleSnackBar(message);
+
+    // this.handleSnackBar(TO_DATE_SESSION + message);
     this.getFromRange();
   };
 
   handleDatePickerDateChangeFrom = date => {
-    this.setState({ datePickerSelectedDateFrom: new Date(date).getTime() });
+    localStorage.setItem(From_DATE_SESSION, date);
+    // alert(localStorage.getItem(From_DATE_SESSION));
+
+    this.setState({ datePickerSelectedDateFrom: date });
   };
   handleDatePickerDateChangeTo = date => {
-    this.setState({ datePickerSelectedDateTo: new Date(date).getTime() });
+    localStorage.setItem(TO_DATE_SESSION, date);
+
+    this.setState({ datePickerSelectedDateTo: date });
   };
   handleSnackBar = message => {
     this.setState({
@@ -213,24 +227,18 @@ class Report extends Component {
   getFromRange = () => {
     //  event.preventDefault();
     // var data = new FormData();
-
+    let fDate = new Date(this.state.datePickerSelectedDateFrom.toDateString());
+    let toDate = new Date(this.state.datePickerSelectedDateTo.toDateString());
+    // alert("from" + fDate.getTime() + " To: " + toDate.getTime());
     //data.append("file", event.target.files[0]);
     this.handleSnackBar("Request is  being process, please stay on page ");
     $.ajax({
       type: "POST",
-      url:
-        "/api/getrange?from=" +
-        this.state.datePickerSelectedDateFrom +
-        "&to=" +
-        this.state.datePickerSelectedDateTo,
+      url: "/api/getrange?from=" + fDate.getTime() + "&to=" + toDate.getTime(),
       success: data => {
-        console.log(
-          "Request for filter",
-          "/api/getrange?from=" +
-            this.state.datePickerSelectedDateFrom +
-            "& to=" +
-            this.state.datePickerSelectedDateTo
-        );
+        /*  alert(
+          "/api/getrange?from=" + fDate.getTime() + "&to=" + toDate.getTime()
+        ); */
         if (data.success === "true") {
           this.state.response.AboveRange.datasets = data.AboveRange.datasets;
           this.state.response.WithinRange.datasets = data.WithinRange.datasets;
@@ -277,6 +285,7 @@ class Report extends Component {
       horizontal,
       fileBeingProcessedSnackbaropen
     } = this.state;
+
     return (
       <React.Fragment>
         <SnackbarNotification
