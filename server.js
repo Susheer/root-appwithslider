@@ -175,21 +175,38 @@ app.post(
 //--------------------------------------------------------------------------------getrange
 app.post(config.base_url + apiRequest.post.getRange.url, (req, res, next) => {
   console.log("Post:GetRange invoked");
+  console.log("Object.keys(req.querry)", Object.keys(req.query));
+  console.log("To and From", req.query.to + " " + req.query.from);
   if (Object.keys(req.query).length === 0) {
     return res.json({
       success: false,
       Error: [{ statusCode: 400, details: "request query is missing" }]
     });
   } else {
-    console.log("Object.keys(req.querry)", Object.keys(req.query));
-    console.log("To and From", req.query.to + " " + req.query.from);
-    if (req.query.to && req.query.from) {
-      putOrPostFunction(req, res, pythonCtl.getRange);
-    } else {
-      return res.json({
-        success: false,
-        Error: [{ statusCode: 400, details: " 'to' or 'from' is missing" }]
-      });
+    if (Object.keys(req.query).length === 1) {
+      if (req.query.QueryId) {
+        console.log("POST: getSlider QueryId recieved", req.query.QueryId);
+        putOrPostFunction(req, res, pythonCtl.getSlider);
+      } else {
+        return res.json({
+          success: false,
+          Error: [
+            {
+              statusCode: 400,
+              details: " 'QueryId' does not contain value"
+            }
+          ]
+        });
+      }
+    } else if (Object.keys(req.query).length === 2) {
+      if (req.query.to && req.query.from) {
+        putOrPostFunction(req, res, pythonCtl.getRange);
+      } else {
+        return res.json({
+          success: false,
+          Error: [{ statusCode: 400, details: " 'to' or 'from' is missing" }]
+        });
+      }
     }
   }
 });

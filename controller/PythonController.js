@@ -178,6 +178,55 @@ let PythonController = {
 
     // res.json({ auditTrail: "Report id" + req.query.ReportId });
   },
+  getSlider: function(req, res) {
+    console.log("getSlider action  invoked");
+    let processd = spawn("python", ["./getSlider.py", req.query.QueryId]);
+    let result = "";
+    processd.stdout.on("data", data => {
+      console.log("Python Code getSlider.py started");
+      result += data.toString();
+    });
+
+    processd.stdout.on("end", () => {
+      try {
+        // If JSON handle the data
+        //console.log("Python Code Slider_Report.py stdout end invoked");
+        // console.log(result.toString());
+        let jsonResponse = JSON.parse(result);
+
+        return res.send(jsonResponse);
+        // console.log(JSON.parse(result));
+      } catch (e) {
+        // Otherwise treat as a log entry
+        // console.log("Parsing Error:" + e);
+        //console.log(result.toString());
+        return res.json({
+          success: false,
+          Error: [
+            {
+              statusCode: 400,
+              details: "Data parsing failed due to wrong format"
+            }
+          ]
+        });
+      }
+    });
+    processd.on("error", err => {
+      console.log("Python Code getSlider.py err invoked-", err);
+    });
+    processd.on("exit", (code, signal) => {
+      console.log(
+        "Python Code getSlider.py Exit invoked-'" +
+          code +
+          "' Signal-'" +
+          signal +
+          "' "
+      );
+      console.log("getSlider action  completed");
+    });
+
+    // res.json({ auditTrail: "Report id" + req.query.ReportId });
+  },
   summaryReport: function(req, res) {
     console.log("Post:Summary Report");
     let processd = spawn("python", [
