@@ -150,7 +150,7 @@ for row in range(b[0]):
                 "y": MainData.iloc[row]['Row_Main'],
                 "r": 9
             }],
-            "backgroundColor": "#30e110"
+            "backgroundColor": "#008000"
         }
         jsonObject["WithinRange"]["datasets"].append(jsonObj)
         Array = np.append(Array, mainDataFrame.iloc[row][ls.__len__()])
@@ -164,7 +164,7 @@ for row in range(b[0]):
                 "y": MainData.iloc[row]['Row_Main'],
                 "r": 9
             }],
-            "backgroundColor": "#ec260e"
+            "backgroundColor": "#FFA500"
         }
         jsonObject["BelowRange"]["datasets"].append(jsonObj)
         Array = np.append(Array, BelowRange.iloc[row][ls.__len__()])
@@ -178,7 +178,7 @@ for row in range(b[0]):
                 "y": MainData.iloc[row]['Row_Main'],
                 "r": 9
             }],
-            "backgroundColor": "#FFFF00"
+            "backgroundColor": "#FFA500"
         }
         jsonObject["AboveRange"]["datasets"].append(jsonObj)
         Array = np.append(Array, OutOfRange.iloc[row][ls.__len__()])
