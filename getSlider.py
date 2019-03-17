@@ -82,7 +82,7 @@ def Date_Picker(fromDate, toDate):
                     "y": Dataframe.iloc[row]['Row_Main'],
                     "r": 9
                 }],
-                "backgroundColor": "#30e110"
+                "backgroundColor": "#008000"
             }
             jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
@@ -95,7 +95,7 @@ def Date_Picker(fromDate, toDate):
                     "y": Dataframe.iloc[row]['Row_Main'],
                     "r": 9
                 }],
-                "backgroundColor": "#ec260e"
+                "backgroundColor": "#FFA500"
             }
             jsonObject["BelowRange"]["datasets"].append(jsonObj)
 
@@ -108,7 +108,7 @@ def Date_Picker(fromDate, toDate):
                     "y": Dataframe.iloc[row]['Row_Main'],
                     "r": 9
                 }],
-                "backgroundColor": "#FFFF00"
+                "backgroundColor": "#FFA500"
             }
             jsonObject["AboveRange"]["datasets"].append(jsonObj)
 
