@@ -7,7 +7,11 @@ import Chart from "./Chart";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import SlideCom from "./Slider-rc";
 import { inspect } from "util"; // or directly
-import { From_DATE_SESSION, TO_DATE_SESSION } from "../constants";
+import {
+  From_DATE_SESSION,
+  TO_DATE_SESSION,
+  SLIDER_VALUE_SESSION
+} from "../constants";
 
 import SnackbarNotification from "../Util-Component/SnackbarNotification";
 import "./report-style.css";
@@ -220,6 +224,7 @@ class Report extends Component {
       }
     }).done(function(json) {
       // console.log(json);
+      sessionStorage.setItem(SLIDER_VALUE_SESSION, 0);
       window.location.reload();
     });
   };

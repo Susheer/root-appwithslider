@@ -65,7 +65,7 @@ if Data < Qt25[int(DataIndex)]:
             "r": 9,
             "keepTooltipOpen": 'true'
         }],
-        "backgroundColor": "#ec260e"
+        "backgroundColor": "#FFA500"
     }
 
     jsonObject["BelowRange"]["datasets"].append(jsonObj)
@@ -81,7 +81,7 @@ elif Data > Qt75[int(DataIndex)]:
             "r": 9,
             "keepTooltipOpen": 'true'
         }],
-        "backgroundColor": "#FFFF00"
+        "backgroundColor": "#FFA500"
     }
 
     jsonObject["AboveRange"]["datasets"].append(jsonObj)
@@ -96,7 +96,7 @@ else:
             "r": 9,
             "keepTooltipOpen": 'true'
         }],
-        "backgroundColor": "#30e110"
+        "backgroundColor": "#008000"
     }
     jsonObject["WithinRange"]["datasets"].append(jsonObj)
 

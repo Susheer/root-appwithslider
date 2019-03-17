@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import "rc-slider/assets/index.css";
 import Slider from "rc-slider";
 import { SLIDER_VALUE_SESSION } from "../constants";
 import $ from "jquery";
-
+import SnackbarNotification from "../Util-Component/SnackbarNotification";
 const style = { width: "100%" };
 const fontStyle = {
   paddingTop: "5px",
@@ -47,11 +47,40 @@ const marks = {
     </strong>
   )
 };
-class SlideCom extends Component {
-  state = {};
 
+class SlideCom extends Component {
+  state = {
+    open: false,
+    snakbarMessage: "Slider data to be displayed",
+    sliderFlag: false
+  };
+
+  handleSliderInput = value => {
+    if (value) {
+      if (value === 0) {
+        this.handleSnackBar("Fetching request based on FOREVER");
+      } else if (value === 6) {
+        this.handleSnackBar("Fetching data based on Year");
+      } else if (value === 12) {
+        this.handleSnackBar("Fetching data based on 3 Month");
+      } else if (value === 18) {
+        this.handleSnackBar("Fetching data based on 1 Month");
+      } else if (value === 24) {
+        this.handleSnackBar("Fetching data based on 15 Days");
+      } else if (value === 30) {
+        this.handleSnackBar("Fetching data based on Week");
+      }
+    } else {
+      console.log("from HanldeSliderInput()- invokd value-", value);
+    }
+  };
   handleSliderQuery = value => {
+    this.setState({ sliderFlag: true });
     let querryId = value;
+    if (value) {
+      this.handleSliderInput(value);
+    }
+    //this.handleSnackBar("");
     $.ajax({
       type: "POST",
       url: "/api/getrange?QueryId=" + value,
@@ -79,10 +108,12 @@ class SlideCom extends Component {
         } else {
           //this.handleSnackBar(data.Error[0].details);
           console.log("Error" + data.Error[0].details);
+          this.handleSnackBar("Failed" + data.Error[0].details);
         }
       }
     }).done(function(data) {
       // console.log(json);
+      this.setState({ sliderFlag: false });
       console.log("request completed");
     });
   };
@@ -118,25 +149,41 @@ class SlideCom extends Component {
     }
   };
 
+  handleSnackBar = message => {
+    this.state.open = true;
+
+    this.setState({
+      open: this.state.open,
+      snakbarMessage: message
+    });
+  };
+
   render() {
     return (
-      <div style={style}>
-        <Slider
-          railStyle={{ background: "black", height: "5px" }}
-          dotStyle={{ display: "none" }}
-          min={0}
-          max={30}
-          marks={marks}
-          step={6}
-          onChange={this.log}
-          defaultValue={
-            sessionStorage.getItem(SLIDER_VALUE_SESSION) === null
-              ? 0
-              : parseInt(sessionStorage.getItem(SLIDER_VALUE_SESSION))
-          }
-          activeDotStyle={{ border: "3px solid black ", display: "none" }}
+      <React.Fragment>
+        <div style={style}>
+          <Slider
+            railStyle={{ background: "black", height: "5px" }}
+            dotStyle={{ display: "none" }}
+            min={0}
+            max={30}
+            marks={marks}
+            step={6}
+            onChange={this.log}
+            defaultValue={
+              sessionStorage.getItem(SLIDER_VALUE_SESSION) === null
+                ? 0
+                : parseInt(sessionStorage.getItem(SLIDER_VALUE_SESSION))
+            }
+            activeDotStyle={{ border: "3px solid black ", display: "none" }}
+            disabled={this.state.sliderFlag}
+          />
+        </div>
+        <SnackbarNotification
+          message={this.state.snakbarMessage}
+          state={this.state}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
