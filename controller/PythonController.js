@@ -112,6 +112,7 @@ let PythonController = {
       console.log("Python Code SecondGraph err invoked-", err);
     });
     processd.on("exit", (code, signal) => {
+      console.log(result.toString());
       console.log(
         "Python Code SecondGraph err invoked-'" +
           code +

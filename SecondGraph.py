@@ -19,15 +19,18 @@ ASingleRow = reportTable.find({}).__getitem__(int(index))
 df = pd.DataFrame.from_dict(ASingleRow, orient='index')
 
 # ///////// Remove First Id Value from data
-df = df.iloc[1:]
+df = df.drop("_id")
+
+columns = np.array(df.index)
+# print()
 df = df.apply(lambda x: pd.to_numeric(x, errors='coerce')).fillna(0)
 
 # //////////////// Access Quntile values from mongodb
 Quantile25 = Quant25_Table.find_one()
 Quantile75 = Quant75_Table.find_one()
 
-Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').iloc[1:]
-Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').iloc[1:]
+Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').drop("_id")
+Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').drop("_id")
 
 # DataArray=np.array(df)
 # length=df.shape
@@ -56,8 +59,9 @@ inRange = np.where(np.logical_and(np.array(df) > np.array(
 
 for clm in range(inRange[0].__len__()):
     jsonObj = {
-        "label": "{}{}".format("Data ", inRange[0][clm]),
+        # "label": columns[clm],
         "pointStyle": "circle",
+        "label": columns[inRange[0][clm]],
         "data": [{
             "x": float(inRange[0][clm]),
             "y": df.iloc[clm][0],
@@ -69,7 +73,7 @@ for clm in range(inRange[0].__len__()):
 for clm in range(bellow[0].__len__()):
     # print(bellow[0][clm])
     jsonObj = {
-        "label": "{}{}".format("Data ", bellow[0][clm]),
+        "label": columns[bellow[0][clm]],
         "pointStyle": "circle",
         "data": [{
             "x": float(bellow[0][clm]),
@@ -82,7 +86,7 @@ for clm in range(bellow[0].__len__()):
     # dataFrame.loc[bellow[clm], 'Range'] = 'Below_Range'
 for clm in range(outter[0].__len__()):
     jsonObj = {
-        "label": "{}{}".format("Data ", outter[0][clm]),
+        "label": columns[outter[0][clm]],
         "pointStyle": "circle",
         "data": [{
             "x": float(outter[0][clm]),

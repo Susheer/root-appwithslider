@@ -56,29 +56,30 @@ class SlideCom extends Component {
   };
 
   handleSliderInput = value => {
-    if (value) {
-      if (value === 0) {
-        this.handleSnackBar("Fetching request based on FOREVER");
-      } else if (value === 6) {
-        this.handleSnackBar("Fetching data based on Year");
-      } else if (value === 12) {
-        this.handleSnackBar("Fetching data based on 3 Month");
-      } else if (value === 18) {
-        this.handleSnackBar("Fetching data based on 1 Month");
-      } else if (value === 24) {
-        this.handleSnackBar("Fetching data based on 15 Days");
-      } else if (value === 30) {
-        this.handleSnackBar("Fetching data based on Week");
-      }
-    } else {
-      console.log("from HanldeSliderInput()- invokd value-", value);
+    if (value === 0) {
+      this.handleSnackBar("Fetching request based on FOREVER");
+    } else if (value === 6) {
+      this.handleSnackBar("Fetching data based on Year");
+    } else if (value === 12) {
+      this.handleSnackBar("Fetching data based on 3 Month");
+    } else if (value === 18) {
+      this.handleSnackBar("Fetching data based on 1 Month");
+    } else if (value === 24) {
+      this.handleSnackBar("Fetching data based on 15 Days");
+    } else if (value === 30) {
+      this.handleSnackBar("Fetching data based on Week");
     }
   };
   handleSliderQuery = value => {
     this.setState({ sliderFlag: true });
-    let querryId = value;
+
     if (value) {
       this.handleSliderInput(value);
+    } else if (value === 0) {
+      this.handleSliderInput(value);
+    } else {
+      this.handleSnackBar("Sorry: Seems you missed out somthing");
+      return;
     }
     //this.handleSnackBar("");
     $.ajax({
@@ -90,7 +91,7 @@ class SlideCom extends Component {
           //  this.state.response.AboveRange.datasets = data.AboveRange.datasets;
           //this.state.response.WithinRange.datasets = data.WithinRange.datasets;
           //this.state.response.BelowRange.datasets = data.BelowRange.datasets;
-          console.log("data is plotting");
+
           localStorage.setItem(
             "ReportWRD",
             JSON.stringify(data.WithinRange.datasets)
@@ -111,7 +112,7 @@ class SlideCom extends Component {
           this.handleSnackBar("Failed" + data.Error[0].details);
         }
       }
-    }).done(function(data) {
+    }).done(({ data }) => {
       // console.log(json);
       this.setState({ sliderFlag: false });
       console.log("request completed");
