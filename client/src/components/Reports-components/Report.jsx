@@ -263,6 +263,7 @@ class Report extends Component {
           );
           console.log("Data fetched from server");
           this.setState({ response: data });
+          window.location.reload();
         } else {
           this.handleSnackBar(data.Error[0].details);
         }
@@ -278,7 +279,6 @@ class Report extends Component {
       }
     }).done(function(data) {
       // console.log(json);
-      window.location.reload();
     });
   };
 
@@ -503,23 +503,17 @@ class Report extends Component {
               {/*   blank col for space */}
             </Col>
           </Row>
-          <Row style={{ marginTop: "10%" }}>
-            {" "}
-            <Col
-              md={{ offset: 1 }}
-              style={{ border: "none", paddingTop: "6px" }}
-              className="text-center"
-            >
-              {/*  <Container>
-                <Row>
-                  <Col sm={1} xl={12} md={8}> */}
-              <SlideCom />
-              {/*   </Col>
-                </Row>
-              </Container> */}
+          <Row style={{ marginTop: "8%" }}>
+            <Col md={{ offset: 3 }} style={{}} className="text-center">
+              <Col
+                md={{ offset: 1 }}
+                style={{ border: "none", paddingTop: "6px" }}
+                className="text-center"
+              >
+                <SlideCom />
+              </Col>
             </Col>
             <Col
-              md={{}}
               className="float-left"
               style={{ border: "none", marginTop: "-25px" }}
             >
@@ -545,7 +539,7 @@ class Report extends Component {
                 </span>
               </BtsrpButton>
             </Col>
-          </Row>{" "}
+          </Row>
         </Jumbotron>
         {/* date picker module start*/}
         <Dialog

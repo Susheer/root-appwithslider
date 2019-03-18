@@ -87,11 +87,11 @@ class AuditTrail extends Component {
     //this.getChartData();
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     if (this.props.location.state.PageName === "REPORT") {
       // get data from server
       sessionStorage.setItem("report_id", this.props.location.state.bubbleId);
-      this.getDidChartData();
+      await this.getDidChartData();
       //this.loadDataFromMachine();
     } else if (this.props.location.state.PageName === "SUMMARY_REPORT") {
       this.loadDataFromMachine();
@@ -322,7 +322,7 @@ class AuditTrail extends Component {
           this.props.location.state.bubbleId
         );
         console.log("AjexCall Res: data", data);
-        console.log("data.AboveRange.datasets[]", data.AboveRange.datasets);
+
         this.state.response.AboveRange.datasets = data.AboveRange.datasets;
         this.state.response.WithinRange.datasets = data.WithinRange.datasets;
         this.state.response.BelowRange.datasets = data.BelowRange.datasets;

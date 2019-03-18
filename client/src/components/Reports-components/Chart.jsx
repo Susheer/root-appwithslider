@@ -7,6 +7,7 @@ import SnackbarNotification from "../Util-Component/SnackbarNotification";
 
 import { Redirect } from "react-router-dom";
 import * as zoom from "chartjs-plugin-zoom";
+import logo from "../../logo.svg";
 
 class Chartjs_2 extends Component {
   state = {
@@ -20,6 +21,7 @@ class Chartjs_2 extends Component {
   setRedirect = bubble => {
     this.setState({ bubbleId: bubble, redirect: true });
   };
+
   keepTooltipOpenPlugin = {
     beforeRender: function(chart) {
       // We are looking for bubble which owns "keepTooltipOpen" parameter.
@@ -58,7 +60,10 @@ class Chartjs_2 extends Component {
         tooltip.pivot();
         tooltip.transition(easing).draw();
       });
-    } // end afterDatasetsDraw
+    }, // end afterDatasetsDraw
+    afterUpdate: function(chart) {
+      // chart.config.data.datasets[0]._meta[0].data[0]._model.pointStyle = logo;
+    }
   };
 
   componentWillMount() {
@@ -67,6 +72,17 @@ class Chartjs_2 extends Component {
 
   chartReference = {};
   chartOpt = {
+    tooltips: {
+      callbacks: {
+        label: function(tooltipItem, data) {
+          var datasetLabel = "";
+          // var label = data.labels[tooltipItem.index];
+          var label = data.datasets[tooltipItem.datasetIndex].label || "";
+
+          return label;
+        }
+      }
+    },
     maintainAspectRatio: false,
     pan: {
       enabled: true,
@@ -163,7 +179,7 @@ class Chartjs_2 extends Component {
     //console.log("onClick Handler", element);
     if (element.length > 0) {
       // Logs it
-      //console.log(element[0]._chart.config.data);
+      // console.log("data is t", element[0]._chart.config.data);
 
       // Here we get the data linked to the clicked bubble ...
       var datasetLabel =
@@ -190,12 +206,23 @@ class Chartjs_2 extends Component {
       }
       // console.log("BubbleId", data.label.trim().slice(-1));
       let val = data.label.trim().split(" ");
-      // console.log("DataArray", val);
-      this.setRedirect(val[1]);
+      if (val) {
+        if (val.length === 1) {
+          this.setRedirect(val[0].trim());
+          // console.log("bubble lable for length 0", val[0]);
+        } else if (val.length === 2) {
+          this.setRedirect(val[1].trim());
+          //  console.log("bubble lable for length 1", val[1]);
+        }
+      } else {
+        this.handleSnackBar("Column not found");
+        return;
+      }
     }
   };
   componentDidMount() {
     // console.log(this.chartReference);
+    console.log("Chart Data", this.state.response);
   }
 
   static defaultProps = {
@@ -232,6 +259,18 @@ class Chartjs_2 extends Component {
               type="bubble"
               data={this.state.response.BelowRange}
               options={{
+                tooltips: {
+                  callbacks: {
+                    label: function(tooltipItem, data) {
+                      var datasetLabel = "";
+                      // var label = data.labels[tooltipItem.index];
+                      var label =
+                        data.datasets[tooltipItem.datasetIndex].label || "";
+
+                      return label;
+                    }
+                  }
+                },
                 maintainAspectRatio: false,
                 pan: {
                   enabled: true,
@@ -299,6 +338,18 @@ class Chartjs_2 extends Component {
               type="bubble"
               data={this.state.response.AboveRange}
               options={{
+                tooltips: {
+                  callbacks: {
+                    label: function(tooltipItem, data) {
+                      var datasetLabel = "";
+                      // var label = data.labels[tooltipItem.index];
+                      var label =
+                        data.datasets[tooltipItem.datasetIndex].label || "";
+
+                      return label;
+                    }
+                  }
+                },
                 animation: {
                   duration: 0
                 },
