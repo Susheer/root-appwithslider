@@ -7,7 +7,8 @@ import SnackbarNotification from "../Util-Component/SnackbarNotification";
 
 import { Redirect } from "react-router-dom";
 import * as zoom from "chartjs-plugin-zoom";
-import logo from "../../logo.svg";
+import {} from "../constants";
+import { min } from "date-fns";
 
 class Chartjs_2 extends Component {
   state = {
@@ -16,7 +17,8 @@ class Chartjs_2 extends Component {
     redirect: false,
     response: this.props.response,
     open: false,
-    snakbarMessage: "data to be display"
+    snakbarMessage: "data to be display",
+    xmax: 0
   };
   setRedirect = bubble => {
     this.setState({ bubbleId: bubble, redirect: true });
@@ -95,27 +97,6 @@ class Chartjs_2 extends Component {
     layout: {
       padding: { left: 0, right: 0, top: 0, bottom: 0 }
     },
-    scales: {
-      xAxes: [
-        {
-          display: false,
-
-          type: "linear",
-          position: "bottom"
-        }
-      ],
-      yAxes: [
-        {
-          display: false,
-          /*  ticks: {
-            min: -20,
-            max: 120
-          }, */
-          type: "linear",
-          position: "bottom"
-        }
-      ]
-    },
     maintainAspectRatio: false,
     responsive: true
   };
@@ -176,7 +157,7 @@ class Chartjs_2 extends Component {
   };
 
   handleBubble = element => {
-    //console.log("onClick Handler", element);
+    console.log("onClick Handler", this.chartReference);
     if (element.length > 0) {
       // Logs it
       // console.log("data is t", element[0]._chart.config.data);
@@ -233,6 +214,12 @@ class Chartjs_2 extends Component {
   };
 
   render() {
+    const { AboveRange, WithinRange, BelowRange } = this.state.response;
+
+    console.log("AboveRange in render ", AboveRange);
+    console.log("BelowRange range in render", BelowRange);
+    console.log("WithinRange in render", WithinRange);
+
     return (
       <React.Fragment>
         {this.renderRedirect()}
@@ -257,7 +244,7 @@ class Chartjs_2 extends Component {
             <Bubble
               ref="chart1"
               type="bubble"
-              data={this.state.response.BelowRange}
+              data={BelowRange}
               options={{
                 tooltips: {
                   callbacks: {
@@ -270,6 +257,12 @@ class Chartjs_2 extends Component {
                       return label;
                     }
                   }
+                },
+                animation: {
+                  duration: 0
+                },
+                hover: {
+                  animationDuration: 0
                 },
                 maintainAspectRatio: false,
                 pan: {
@@ -287,12 +280,23 @@ class Chartjs_2 extends Component {
                     {
                       type: "linear",
                       position: "bottom",
-                      display: false
+                      display: false,
+                      ticks: {
+                        // below range
+                        max: parseInt(BelowRange.x_max),
+
+                        min: parseInt(BelowRange.x_min) //BelowRange.x_min
+                      }
                     }
                   ],
                   yAxes: [
                     {
-                      display: false
+                      type: "linear",
+                      display: false,
+                      ticks: {
+                        min: parseInt(BelowRange.y_min),
+                        max: parseInt(BelowRange.y_max) //
+                      }
                     }
                   ]
                 }
@@ -315,8 +319,41 @@ class Chartjs_2 extends Component {
             <Bubble
               ref={reference => (this.chartReference = reference)}
               type="bubble"
-              data={this.state.response.WithinRange}
-              options={this.chartOpt}
+              data={WithinRange}
+              options={{
+                ...this.chartOpt,
+                animation: {
+                  duration: 0
+                },
+                hover: {
+                  animationDuration: 0
+                },
+                scales: {
+                  xAxes: [
+                    {
+                      type: "linear",
+                      position: "bottom",
+                      display: false,
+                      ticks: {
+                        // below range
+                        max: parseInt(WithinRange.x_max),
+
+                        min: parseInt(WithinRange.x_min) //BelowRange.x_min
+                      }
+                    }
+                  ],
+                  yAxes: [
+                    {
+                      type: "linear",
+                      display: false,
+                      ticks: {
+                        min: parseInt(WithinRange.y_min),
+                        max: parseInt(WithinRange.y_max) //
+                      }
+                    }
+                  ]
+                }
+              }}
               legend={{ display: false }}
               getElementAtEvent={this.handleBubble}
             />
@@ -336,7 +373,7 @@ class Chartjs_2 extends Component {
             </p>
             <Bubble
               type="bubble"
-              data={this.state.response.AboveRange}
+              data={AboveRange}
               options={{
                 tooltips: {
                   callbacks: {
@@ -371,20 +408,22 @@ class Chartjs_2 extends Component {
                     {
                       type: "linear",
                       position: "bottom",
-                      display: false
-                      /*  ticks: {
-                        min: -50,
-                        max: 120
-                      } */
+                      display: false,
+                      ticks: {
+                        // AboveRange
+
+                        max: parseInt(AboveRange.x_max), //,
+                        min: parseInt(AboveRange.x_min) //
+                      }
                     }
                   ],
                   yAxes: [
                     {
-                      display: false
-                      /*  ticks: {
-                        min: -20,
-                        max: 120
-                      } */
+                      display: false,
+                      ticks: {
+                        max: parseInt(AboveRange.y_max), //,
+                        min: parseInt(AboveRange.y_min)
+                      }
                     }
                   ]
                 }

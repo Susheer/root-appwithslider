@@ -18,13 +18,13 @@ class App extends Component {
     console.log("Redux:Props", this.props);
     return (
       <Container fluid="true" style={{ padding: "0" }}>
-        <Header>
+        <header>
           <Nav />
           {/*  <p style={{ marginTop: "10%" }} onClick={this.onUpdateUser}>
             UpdateUser
           </p>
           <h1>{this.props.user}</h1> */}
-        </Header>
+        </header>
         <Content>
           <Main />
         </Content>

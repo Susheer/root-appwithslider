@@ -34,11 +34,25 @@ class SummaryReport extends Component {
     fUploadPercentege: 0,
     showFileUploadProgress: "none", // none or block
     response: {
-      WithinRange: { datasets: [] },
+      WithinRange: {
+        x_max: 120,
+        x_min: 0,
+        y_max: 120,
+        y_min: 0,
+        datasets: []
+      },
       BelowRange: {
+        x_max: 120,
+        x_min: 0,
+        y_max: 120,
+        y_min: 0,
         datasets: []
       },
       AboveRange: {
+        x_max: 120,
+        x_min: 0,
+        y_max: 120,
+        y_min: 0,
         datasets: []
       }
     },
@@ -296,31 +310,6 @@ class SummaryReport extends Component {
     );
   }
 
-  /*  loadDataFromMachine() {
-    console.log("Loadig data from machine - invoked");
-    try {
-      let AuditTrailWRD = JSON.parse(localStorage.getItem("AuditTrailWRD"));
-      let AuditTrailARD = JSON.parse(localStorage.getItem("AuditTrailARD"));
-      let AuditTrailBRD = JSON.parse(localStorage.getItem("AuditTrailBRD"));
-
-      //console.log("Response from local Storage", ReportWRD);
-      this.state.response.WithinRange.datasets = AuditTrailWRD;
-      this.state.response.AboveRange.datasets = AuditTrailARD;
-
-      this.state.response.BelowRange.datasets = AuditTrailBRD;
-      //this.state.response.BelowRange.datasets = response.BelowRange.datasets;
-      //this.state.response.AboveRange.datasets = response.AboveRange.datasets;
-      this.setState();
-
-      //   console.log("After setState", this.state.response.WithinRange);
-    } catch (err) {
-      //mark this error ?
-      return (
-        "From Audit-trail ->Could not found data  , kindly re-upload the file" +
-        err
-      );
-    }
-  } */
   getDidChartData() {
     // check from where page is comming
     // if From Report  then load data from server
@@ -341,27 +330,25 @@ class SummaryReport extends Component {
         "&DataId=" +
         this.props.location.state.DataId,
       success: data => {
-        console.log("recived data", data);
+        console.log("SummaryReport: AjexCall invoked", data);
         console.log(
           "AjexCall to /api/audittrailReportId=",
           this.props.location.state.bubbleId
         );
-        console.log("AjexCall Res: data", data);
-        console.log("data.AboveRange.datasets[]", data.AboveRange.datasets);
-        this.state.response.AboveRange.datasets = data.AboveRange.datasets;
-        this.state.response.WithinRange.datasets = data.WithinRange.datasets;
-        this.state.response.BelowRange.datasets = data.BelowRange.datasets;
+        if (data.success === "true") {
+          console.log("data.AboveRange.datasets[]", data.AboveRange.datasets);
+          this.state.response.AboveRange.datasets = data.AboveRange.datasets;
+          this.state.response.WithinRange.datasets = data.WithinRange.datasets;
+          this.state.response.BelowRange.datasets = data.BelowRange.datasets;
 
-        this.setState({ response: data });
-        console.log("data fetched for sum report");
-        /* arrayOfJsonObjects.map(arrayOfJsonObject => {
-          return this.state.solardatas.push(arrayOfJsonObject);
-        });
-
-        this.pushDataToArray(this); */
-
-        //this.setState({ solardatas: data.data });
-        //solardatas.push(data.data);
+          this.setState({ response: data });
+        } else {
+          this.handleSnackBar(data.Error[0].details);
+        }
+        console.log("SummaryReport: AjexCall End");
+      },
+      error: err => {
+        this.handleSnackBar("Something went wrong");
       }
     });
   }

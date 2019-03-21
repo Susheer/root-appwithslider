@@ -17,12 +17,11 @@ class SimpleSnackbar extends React.Component {
     message: this.props.message
   };
 
-  componentWillReceiveProps() {
-    console.log("receive priops", this.props.state.open);
-  }
+  componentWillReceiveProps() {}
   handleClose = (event, reason) => {
     if (reason === "clickaway") {
-      return;
+      this.props.state.open = true;
+      return false;
     }
     this.props.state.open = false;
     this.setState({ [this.props.state.open]: this.props.state.open });
@@ -48,7 +47,7 @@ class SimpleSnackbar extends React.Component {
           }
           action={[
             <Button
-              key="undo"
+              key="OK"
               color="secondary"
               size="small"
               onClick={this.handleClose}
