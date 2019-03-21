@@ -20,37 +20,60 @@ DataIndex = sys.argv[2]
 # index='15'
 
 # //////////////// Access I`th Index Row from mongoDb
-ASingleRow = reportTable.find({}).__getitem__(int(index))
-df = pd.DataFrame.from_dict(ASingleRow, orient='index').drop("_id")
 
+
+df = pd.DataFrame()
+# Quantile25 = pd.DataFrame()
+# Quantile75 = pd.DataFrame()
+try:
+    ASingleRow = reportTable.find({}).__getitem__(int(index))
+    df = pd.DataFrame.from_dict(ASingleRow, orient='index').drop("_id")
+
+except:
+    errorobj = {
+        "success": "false",
+        "Error": [{"statusCode": 500, "details": "Internal Error"}]
+    }
+    Eobject = json.dumps(errorobj)
+    print(Eobject)
+
+Quantile25 = Quant25_Table.find_one()
+Quantile75 = Quant75_Table.find_one()
+Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').drop("_id")
+Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').drop("_id")
 data = df.loc[DataIndex][0]
 dff = df.apply(lambda x: pd.to_numeric(x, errors='coerce')).fillna(0)
 # arr = np.array(df)
 Data = dff.loc[DataIndex][0]
 
 
-Quantile25 = Quant25_Table.find_one()
-Quantile75 = Quant75_Table.find_one()
-
-Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').drop("_id")
-Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').drop("_id")
-
 Qt25 = Quantile25.loc[DataIndex][0]
 Qt75 = Quantile75.loc[DataIndex][0]
 
 jsonObject = {
     "success": "true",
-
+    "Error": [],
     "WithinRange": {
+        "x_min": 0,
+        "x_max": 100,
+        "y_min": 0,
+        "y_max": 100,
         "datasets": []
     },
     "BelowRange": {
+        "x_min": 0,
+        "x_max": 100,
+        "y_min": 0,
+        "y_max": 100,
         "datasets": []
     },
     "AboveRange": {
+        "x_min": 0,
+        "x_max": 100,
+        "y_min": 0,
+        "y_max": 100,
         "datasets": []
     }
-
 }
 
 if Data < Qt25:
@@ -59,8 +82,8 @@ if Data < Qt25:
         "pointStyle": "circle",
 
         "data": [{
-            "x": random.randint(1, 101),
-            "y": random.randint(1, 101),
+            "x": 25,
+            "y": 70,
             "r": 9,
             "keepTooltipOpen": 'true'
         }],
@@ -73,8 +96,8 @@ elif Data > Qt75:
         "pointStyle": "circle",
 
         "data": [{
-            "x": random.randint(1, 101),
-            "y": random.randint(1, 101),
+            "x": 25,
+            "y": 70,
             "r": 9,
             "keepTooltipOpen": 'true'
         }],
@@ -87,8 +110,8 @@ else:
         "pointStyle": "circle",
 
         "data": [{
-            "x": random.randint(1, 101),
-            "y": random.randint(1, 101),
+            "x": 25,
+            "y": 70,
             "r": 9,
             "keepTooltipOpen": 'true'
         }],

@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from "react";
 import "rc-slider/assets/index.css";
+
 import Slider from "rc-slider";
 import { SLIDER_VALUE_SESSION } from "../constants";
 import $ from "jquery";

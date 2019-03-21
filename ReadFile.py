@@ -78,13 +78,13 @@ RangeDataFrame['Outof_Range'] = pd.Series(OutOfRangeArray)
 RangeDataFrame['Below_Range'] = pd.Series(BelowRangeArray)
 
 win_x_max = mainDataFrame['IQR_mean'].max()/100
-win_x_min = mainDataFrame['IQR_mean'].min()-5
+win_x_min = (mainDataFrame['IQR_mean'].min()/win_x_max)-20
 
 Abov_x_max = OutOfRange['IQR_mean'].max()/100
-Abov_x_min = OutOfRange['IQR_mean'].min()-5
+Abov_x_min = (OutOfRange['IQR_mean'].min()/Abov_x_max)-20
 
 Below_x_max = BelowRange['IQR_mean'].max()/100
-Below_x_min = BelowRange['IQR_mean'].min()-5
+Below_x_min = (BelowRange['IQR_mean'].min()/Below_x_max)-20
 
 
 RangeDataFrame['Range'] = RangeDataFrame.idxmax(axis=1)
@@ -106,8 +106,21 @@ except:
     Eobject = json.dumps(errorobj)
     print(Eobject)
 
-y_max = ResultDf['Row_Main'].max()/100
-y_min = ResultDf['Row_Main'].min()-5
+inRangeDf = ResultDf.loc[ResultDf["Range"] == "In_Range"]
+OutRangeDf = ResultDf.loc[ResultDf["Range"] == "Outof_Range"]
+BelowRangeDf = ResultDf.loc[ResultDf["Range"] == "Below_Range"]
+
+win_y_max = inRangeDf["Row_Main"].max()/100
+win_y_min = (inRangeDf["Row_Main"].min()/win_y_max)-20
+
+Abov_y_max = OutRangeDf["Row_Main"].max()/100
+Abov_y_min = (OutRangeDf["Row_Main"].min()/Abov_y_max)-20
+
+Below_y_max = BelowRangeDf["Row_Main"].max()/100
+Below_y_min = (BelowRangeDf["Row_Main"].min()/Below_y_max)-20
+#
+# y_max = ResultDf['Row_Main'].max()/100
+# y_min = ResultDf['Row_Main'].min()-5
 
 
 Array = np.array([])
@@ -117,23 +130,23 @@ jsonObject = {
     "Error": [],
     "WithinRange": {
         "x_min": win_x_min,
-        "x_max": win_x_max,
-        "y_min": y_min,
-        "y_max": y_max,
+        "x_max": 130,
+        "y_min": win_y_min,
+        "y_max": 130,
         "datasets": []
     },
     "BelowRange": {
         "x_min": Below_x_min,
-        "x_max": Below_x_max,
-        "y_min": y_min,
-        "y_max": y_max,
+        "x_max": 130,
+        "y_min": Below_y_min,
+        "y_max": 130,
         "datasets": []
     },
     "AboveRange": {
         "x_min": Abov_x_min,
-        "x_max": Abov_x_max,
-        "y_min": y_min,
-        "y_max": y_max,
+        "x_max": 130,
+        "y_min": Abov_y_min,
+        "y_max": 130,
         "datasets": []
     }
 }
@@ -146,8 +159,8 @@ for row in range(b[0]):
             "label": "{} {}".format("Report", row),
             "pointStyle": "circle",
             "data": [{
-                "x": mainDataFrame.iloc[row][ls.__len__()],
-                "y": MainData.iloc[row]['Row_Main'],
+                "x": (mainDataFrame.iloc[row][ls.__len__()]/win_x_max),
+                "y": (MainData.iloc[row]['Row_Main']/win_y_max),
                 "r": 9
             }],
             "backgroundColor": "#008000"
@@ -160,8 +173,8 @@ for row in range(b[0]):
             "label": "{} {}".format("Report", row),
             "pointStyle": "circle",
             "data": [{
-                "x": BelowRange.iloc[row][ls.__len__()],
-                "y": MainData.iloc[row]['Row_Main'],
+                "x": BelowRange.iloc[row][ls.__len__()]/Below_x_max,
+                "y": MainData.iloc[row]['Row_Main']/Below_y_max,
                 "r": 9
             }],
             "backgroundColor": "#FFA500"
@@ -174,8 +187,8 @@ for row in range(b[0]):
             "label": "{} {}".format("Report", row),
             "pointStyle": "circle",
             "data": [{
-                "x": OutOfRange.iloc[row][ls.__len__()],
-                "y": MainData.iloc[row]['Row_Main'],
+                "x": OutOfRange.iloc[row][ls.__len__()]/Abov_x_max,
+                "y": MainData.iloc[row]['Row_Main']/Abov_y_max,
                 "r": 9
             }],
             "backgroundColor": "#FFA500"

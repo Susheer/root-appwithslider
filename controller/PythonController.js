@@ -112,7 +112,7 @@ let PythonController = {
       console.log("Python Code SecondGraph err invoked-", err);
     });
     processd.on("exit", (code, signal) => {
-      console.log(result.toString());
+      //console.log(result.toString());
       console.log(
         "Python Code SecondGraph err invoked-'" +
           code +
@@ -120,9 +120,8 @@ let PythonController = {
           signal +
           "' "
       );
+      console.log("audit tril completed");
     });
-
-    console.log("audit tril compleated");
 
     // res.json({ auditTrail: "Report id" + req.query.ReportId });
   },

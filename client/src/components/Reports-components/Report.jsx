@@ -41,19 +41,36 @@ import { timingSafeEqual } from "crypto";
 
 class Report extends Component {
   state = {
+    isReportBusy: false,
+    count: 25,
     fileBeingProcessedSnackbaropen: false,
-
+    fileBeingProcessedSnackbarMessage: "File is being processed. Please wait..",
+    loderCircle: "",
     vertical: "top",
     horizontal: "center",
     isFileUploaded: false,
     fUploadPercentege: 0,
     showFileUploadProgress: "none", // none or block
     response: {
-      WithinRange: { datasets: [] },
+      WithinRange: {
+        x_max: 120,
+        x_min: 0,
+        y_max: 120,
+        y_min: 0,
+        datasets: []
+      },
       BelowRange: {
+        x_max: 120,
+        x_min: 0,
+        y_max: 120,
+        y_min: 0,
         datasets: []
       },
       AboveRange: {
+        x_max: 120,
+        x_min: 0,
+        y_max: 120,
+        y_min: 0,
         datasets: []
       }
     },
@@ -81,7 +98,11 @@ class Report extends Component {
     //this.setState({ fileBeingProcessedSnackbaropen: true });
   };
 
-  handleFileBeingProcessedSnackbarClose = () => {
+  handleFileBeingProcessedSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      this.state.fileBeingProcessedSnackbaropen = true;
+      return false;
+    }
     this.setState({ fileBeingProcessedSnackbaropen: false });
   };
 
@@ -170,7 +191,7 @@ class Report extends Component {
                 this.setState({ fileBeingProcessedSnackbaropen: true });
               }
 
-              console.log("Uploaded percent", percentComplete);
+              //  console.log("Uploaded percent", percentComplete);
             }
           }.bind(this),
           false
@@ -181,8 +202,6 @@ class Report extends Component {
           function(evt) {
             if (evt.lengthComputable) {
               var percentComplete = Math.round((evt.loaded * 100) / evt.total);
-              //Do something with download progress
-              console.log("Downloaded percent", percentComplete);
             }
           },
           false
@@ -190,21 +209,86 @@ class Report extends Component {
         return jqXHR;
       }.bind(this),
       success: function(data) {
-        //Do something success-ish
-        // console.log("Ajex response", data);
-        //console.log("data.AboveRange.datasets[]", data["AboveRange"]);
-        this.setState({
+        /* this.setState({
           fileBeingProcessedSnackbaropen: false
-        });
+        }); */
+
         if (data.success === "true") {
+          console.log("inside success:true");
           this.state.response.AboveRange.datasets = data.AboveRange.datasets;
           this.state.response.WithinRange.datasets = data.WithinRange.datasets;
           this.state.response.BelowRange.datasets = data.BelowRange.datasets;
 
-          localStorage.setItem(
-            "ReportWRD",
-            JSON.stringify(data.WithinRange.datasets)
-          );
+          try {
+            console.log(" data.WithinRange.x_max", data.WithinRange.x_max);
+            //Above Range X,Y (MIN , Max)
+            sessionStorage.setItem(
+              "ReportAbovX_MAX",
+              Math.ceil(data.AboveRange.x_max)
+            );
+            sessionStorage.setItem(
+              "ReportAbovX_MIN",
+              Math.ceil(data.AboveRange.x_min)
+            );
+            sessionStorage.setItem(
+              "ReportAbovY_MAX",
+              Math.ceil(data.AboveRange.y_max)
+            );
+            sessionStorage.setItem(
+              "ReportAbovY_MIN",
+              Math.ceil(data.AboveRange.x_min)
+            );
+            //WithinRange Range X,Y (MIN , Max)
+
+            sessionStorage.setItem(
+              "ReportWithinRngX_MAX",
+
+              Math.ceil(data.WithinRange.x_max)
+            );
+            sessionStorage.setItem(
+              "ReportWithinRngX_MIN",
+              Math.ceil(data.WithinRange.x_min)
+            );
+            sessionStorage.setItem(
+              "ReportWithinRngY_MAX",
+              Math.ceil(data.WithinRange.y_max)
+            );
+            sessionStorage.setItem(
+              "ReportWithinRngY_MIN",
+              Math.ceil(data.WithinRange.y_min)
+            );
+
+            //BelowRange Range X,Y (MIN , Max)
+            sessionStorage.setItem(
+              "ReportBelowRngX_MAX",
+              Math.ceil(data.BelowRange.x_max)
+            );
+            sessionStorage.setItem(
+              "ReportBelowRngX_MIN",
+              Math.ceil(data.BelowRange.x_min)
+            );
+            sessionStorage.setItem(
+              "ReportBelowRngY_MAX",
+              Math.ceil(data.BelowRange.y_max)
+            );
+            sessionStorage.setItem(
+              "ReportBelowRngY_MIN",
+              Math.ceil(data.BelowRange.y_min)
+            );
+            // B
+          } catch (err) {
+            console.log("error while saveing to ls");
+          }
+
+          try {
+            localStorage.setItem(
+              "ReportWRD",
+              JSON.stringify(data.WithinRange.datasets)
+            );
+          } catch (err) {
+            console.log("Error in wrdt", err);
+          }
+
           localStorage.setItem(
             "ReportARD",
             JSON.stringify(data.AboveRange.datasets)
@@ -216,16 +300,28 @@ class Report extends Component {
         } else {
           try {
             this.handleSnackBar(data.Error[0].details);
-          } catch (err) {}
+          } catch (err) {
+            console.log("Error in ");
+          }
         }
+        this.setGreeting();
+        setTimeout("window.location.reload();", 2000);
       }.bind(this),
       error: err => {
-        alert(err);
+        this.handleSnackBar(err);
       }
-    }).done(function(json) {
+    }).done(({ json }) => {
       // console.log(json);
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 0);
-      window.location.reload();
+      // window.location.reload();
+    });
+  };
+
+  setGreeting = () => {
+    this.setState({
+      fileBeingProcessedSnackbarMessage:
+        "We appreciate your time and patience,thank you!",
+      loderCircle: "none"
     });
   };
 
@@ -263,19 +359,11 @@ class Report extends Component {
           );
           console.log("Data fetched from server");
           this.setState({ response: data });
+          console.log("Deta from server", data);
           window.location.reload();
         } else {
           this.handleSnackBar(data.Error[0].details);
         }
-
-        /* arrayOfJsonObjects.map(arrayOfJsonObject => {
-          return this.state.solardatas.push(arrayOfJsonObject);
-        });
-
-        this.pushDataToArray(this); */
-
-        //this.setState({ solardatas: data.data });
-        //solardatas.push(data.data);
       }
     }).done(function(data) {
       // console.log(json);
@@ -288,7 +376,9 @@ class Report extends Component {
       datePickerSelectedDateTo,
       vertical,
       horizontal,
-      fileBeingProcessedSnackbaropen
+      fileBeingProcessedSnackbaropen,
+      fileBeingProcessedSnackbarMessage,
+      loderCircle
     } = this.state;
 
     return (
@@ -308,7 +398,7 @@ class Report extends Component {
           message={
             <div>
               <CircularProgress
-                style={{ verticalAlign: "middle" }}
+                style={{ verticalAlign: "middle", display: loderCircle }}
                 thickness={8}
                 disableShrink={true}
                 size={20}
@@ -318,9 +408,9 @@ class Report extends Component {
               <span
                 id="message-id"
                 className="text-center"
-                style={{ marginLeft: "12px" }}
+                style={{ marginLeft: "12px", display: "" }}
               >
-                File is being processed. Please wait..
+                {fileBeingProcessedSnackbarMessage}
               </span>
             </div>
           }
@@ -593,16 +683,69 @@ class Report extends Component {
       let ReportARD = JSON.parse(localStorage.getItem("ReportARD"));
       let ReportBRD = JSON.parse(localStorage.getItem("ReportBRD"));
 
-      //console.log("Response from local Storage", ReportWRD);
       this.state.response.WithinRange.datasets = ReportWRD;
       this.state.response.AboveRange.datasets = ReportARD;
 
       this.state.response.BelowRange.datasets = ReportBRD;
-      //this.state.response.BelowRange.datasets = response.BelowRange.datasets;
-      //this.state.response.AboveRange.datasets = response.AboveRange.datasets;
-      this.setState();
+      //ReportWithinRngY_MIN,
+      // "ReportAbovY_MIN",
+      //"ReportBelowRngX_MAX",
+      this.state.response.BelowRange.x_max =
+        sessionStorage.getItem("ReportBelowRngX_MAX") === null
+          ? this.state.response.BelowRange.x_max
+          : sessionStorage.getItem("ReportBelowRngX_MAX");
 
-      //   console.log("After setState", this.state.response.WithinRange);
+      this.state.response.BelowRange.x_min =
+        sessionStorage.getItem("ReportBelowRngX_MIN") === null
+          ? this.state.response.BelowRange.x_min
+          : sessionStorage.getItem("ReportBelowRngX_MIN");
+
+      this.state.response.BelowRange.y_max =
+        sessionStorage.getItem("ReportBelowRngY_MAX") === null
+          ? this.state.response.BelowRange.y_max
+          : sessionStorage.getItem("ReportBelowRngY_MAX");
+
+      this.state.response.BelowRange.y_min =
+        sessionStorage.getItem("ReportBelowRngY_MIN") === null
+          ? this.state.response.BelowRange.y_min
+          : sessionStorage.getItem("ReportBelowRngY_MIN");
+
+      // Above range
+      this.state.response.AboveRange.x_max =
+        sessionStorage.getItem("ReportAbovX_MAX") === null
+          ? this.state.response.AboveRange.x_max
+          : sessionStorage.getItem("ReportAbovX_MAX");
+      this.state.response.AboveRange.x_min =
+        sessionStorage.getItem("ReportAbovX_MIN") === null
+          ? this.state.response.AboveRange.x_min
+          : sessionStorage.getItem("ReportAbovX_MIN");
+      this.state.response.AboveRange.y_max =
+        sessionStorage.getItem("ReportAbovY_MAX") === null
+          ? this.state.response.AboveRange.y_max
+          : sessionStorage.getItem("ReportAbovY_MAX");
+      this.state.response.AboveRange.y_min =
+        sessionStorage.getItem("ReportAbovY_MIN") === null
+          ? this.state.response.AboveRange.y_min
+          : sessionStorage.getItem("ReportAbovY_MIN");
+
+      // Within Range
+      this.state.response.WithinRange.x_max =
+        sessionStorage.getItem("ReportWithinRngX_MAX") === null
+          ? this.state.response.WithinRange.x_max
+          : sessionStorage.getItem("ReportWithinRngX_MAX");
+      this.state.response.WithinRange.x_min =
+        sessionStorage.getItem("ReportWithinRngX_MIN") === null
+          ? this.state.response.WithinRange.x_min
+          : sessionStorage.getItem("ReportWithinRngX_MIN");
+      this.state.response.WithinRange.y_max =
+        sessionStorage.getItem("ReportWithinRngY_MAX") === null
+          ? this.state.response.WithinRange.y_max
+          : sessionStorage.getItem("ReportWithinRngY_MAX");
+      this.state.response.WithinRange.y_min =
+        sessionStorage.getItem("ReportWithinRngY_MIN") === null
+          ? this.state.response.WithinRange.y_min
+          : sessionStorage.getItem("ReportWithinRngY_MIN");
+      this.setState();
     } catch (err) {
       //mark this error ?
       return "Could not found data  , kindly re-upload the file";

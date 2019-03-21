@@ -79,10 +79,10 @@ height: 700px; */
 .head {
   z-index: 2;
   display: grid;
-  width: 70%;
+  width: 74%;
   grid-template-columns: repeat(2, 1fr);
   margin: 0 auto;
-  padding-top: 12%;
+  padding-top: 7%;
   align-items: center;
 }
 
@@ -155,64 +155,6 @@ main section div p {
 }
 
 /*------------- GALLERY -------------------*/
-
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  height: 820px;
-  width: 95%;
-  margin: 180px auto 0px auto;
-  -webkit-box-shadow: 0px 10px 20px -11px rgba(0, 0, 0, 0.9);
-  -moz-box-shadow: 0px 10px 20px -11px rgba(0, 0, 0, 0.9);
-  box-shadow: 0px 10px 20px -11px rgba(0, 0, 0, 0.9);
-}
-
-.gallery div {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-  filter: grayscale(83%);
-}
-
-/* images are not compressed, remember to compress them before deployment */
-.gallery div.gallery-item-one {
-  background: url("./images/toa-heftiba-526264-unsplash.jpg");
-  background-size: 160%;
-  grid-column-end: span 2;
-  grid-row-end: span 2;
-}
-
-.gallery div.gallery-item-two {
-  background: url("./images/chuttersnap-598266-unsplash.jpg");
-  background-size: 160%;
-}
-.gallery div.gallery-item-three {
-  background: url("./images/rawpixel-196509-unsplash.jpg");
-  background-size: 160%;
-}
-
-.gallery div.gallery-item-four {
-  background: url("./images/rawpixel-284723-unsplash.jpg");
-  background-size: 160%;
-}
-.gallery div.gallery-item-five {
-  background: url("./images/volkan-olmez-73767-unsplash.jpg");
-  background-size: 160%;
-}
-.gallery div.gallery-item-six {
-  background: url("./images/taduuda-72915-unsplash.jpg");
-  background-size: 160%;
-}
-.gallery div.gallery-item-one:hover,
-.gallery div.gallery-item-two:hover,
-.gallery div.gallery-item-three:hover,
-.gallery div.gallery-item-four:hover,
-.gallery div.gallery-item-five:hover,
-.gallery div.gallery-item-six:hover {
-  background-size: 100%;
-  filter: grayscale(0%);
-}
 
 /*------------- SERVICES -------------------*/
 
@@ -391,18 +333,20 @@ footer ul li a {
 }
 
 @media (max-width: 1099px) and (min-width: 850px) {
+  /* ipad pro */
   header {
-    height: 350px;
+    height: 0px;
     background-position: bottom;
   }
 
   .head {
-    width: 75%;
-    padding-top: 400px;
+    width: 70%;
+    padding-top: 5%;
     grid-template-columns: 1fr;
   }
   .head h1 {
-    font-size: 4rem;
+    font-size: 3rem;
+    border-right-style: hidden;
   }
   main section:first-of-type {
     margin-top: 400px;
@@ -441,17 +385,20 @@ footer ul li a {
 }
 
 @media (max-width: 849px) and (min-width: 600px) {
+  /* for i pad screen  */
   header {
-    height: 440px;
+    height: 0px;
   }
 
   .head {
     width: 75%;
-    padding-top: 120px;
+    padding-top: 0px;
     grid-template-columns: 1fr;
   }
   .head h1 {
     font-size: 3rem;
+    border-right: 2px solid #111;
+    border-right-style: hidden;
   }
 
   main section {
@@ -495,6 +442,7 @@ footer ul li a {
 }
 
 @media (max-width: 599px) and (min-width: 0px) {
+  /*   galexy screen */
   .nav {
     text-align: center;
     display: grid;
@@ -517,18 +465,19 @@ footer ul li a {
 
   header {
     background-size: 160%;
-    height: 270px;
+    height: 0px;
     position: relative;
   }
 
   .head {
     width: 75%;
     grid-template-columns: 1fr;
-    padding-top: 260px;
+    padding-top: 0px;
   }
   .head h1 {
     font-size: 2.3rem;
     border: none;
+    border-right: "none";
   }
 
   .head p {
