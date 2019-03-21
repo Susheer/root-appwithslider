@@ -17,15 +17,12 @@ index = sys.argv[1]
 
 # //////////////// Access I`th Index Row from mongoDb
 df = pd.DataFrame()
-Quantile25 = pd.DataFrame()
-Quantile75 = pd.DataFrame()
+# Quantile25 = pd.DataFrame()
+# Quantile75 = pd.DataFrame()
 try:
     ASingleRow = reportTable.find({}).__getitem__(int(index))
     df = pd.DataFrame.from_dict(ASingleRow, orient='index')
-    Quant25 = Quant25_Table.find_one()
-    Quant75 = Quant75_Table.find_one()
-    Quantile25 = pd.DataFrame.from_dict(Quant25, orient='index').drop("_id")
-    Quantile75 = pd.DataFrame.from_dict(Quant75, orient='index').drop("_id")
+
 except:
     errorobj = {
         "success": "false",
@@ -37,6 +34,10 @@ except:
 
 # ///////// Remove First Id Value from data
 df = df.drop("_id")
+Quantile25 = Quant25_Table.find_one()
+Quantile75 = Quant75_Table.find_one()
+Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').drop("_id")
+Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').drop("_id")
 
 columns = np.array(df.index)
 # print()
