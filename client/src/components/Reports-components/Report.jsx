@@ -154,7 +154,7 @@ class Report extends Component {
     var data = new FormData();
 
     data.append("file", event.target.files[0]);
-
+    //FileAjexCall
     $.ajax({
       type: "POST",
       url: "/api/report",
@@ -215,9 +215,9 @@ class Report extends Component {
 
         if (data.success === "true") {
           console.log("inside success:true");
-          this.state.response.AboveRange.datasets = data.AboveRange.datasets;
+          /*  this.state.response.AboveRange.datasets = data.AboveRange.datasets;
           this.state.response.WithinRange.datasets = data.WithinRange.datasets;
-          this.state.response.BelowRange.datasets = data.BelowRange.datasets;
+          this.state.response.BelowRange.datasets = data.BelowRange.datasets;  */
 
           try {
             console.log(" data.WithinRange.x_max", data.WithinRange.x_max);
@@ -307,8 +307,8 @@ class Report extends Component {
         this.setGreeting();
         setTimeout("window.location.reload();", 2000);
       }.bind(this),
-      error: err => {
-        this.handleSnackBar(err);
+      error: ({ err }) => {
+        this.handleSnackBar("Server denied the request");
       }
     }).done(({ json }) => {
       // console.log(json);
@@ -415,7 +415,10 @@ class Report extends Component {
             </div>
           }
         />
-        <Jumbotron style={{ paddingTop: "10px" }}>
+        <div
+          style={{ background: "" }}
+          className="container-fluid Jumbotron-report"
+        >
           <Row style={{ paddingTop: "15px" }}>
             <Col xl={10} style={{ border: "none" }}>
               <Link to="/">
@@ -581,7 +584,7 @@ class Report extends Component {
             <Col xl={2} md={2} sm={2}>
               {/* blank column for space  */}
             </Col>
-            <Col xl={8} md={8} sm={8}>
+            <Col md={8} style={{ position: "block", maxBlockSize: "80%" }}>
               <Chart
                 parentName="REPORT"
                 response={this.state.response}
@@ -589,7 +592,7 @@ class Report extends Component {
               />
             </Col>
 
-            <Col xl={2} md={2} sm={2}>
+            <Col xl={2} md={2} sm={2} style={{ position: "block" }}>
               {/*   blank col for space */}
             </Col>
           </Row>
@@ -603,10 +606,7 @@ class Report extends Component {
                 <SlideCom />
               </Col>
             </Col>
-            <Col
-              className="float-left"
-              style={{ border: "none", marginTop: "-25px" }}
-            >
+            <Col className="float-left" style={{}} className="reportPickRange">
               <BtsrpButton
                 onClick={this.handleDatePickerClickOpen}
                 style={{
@@ -630,7 +630,7 @@ class Report extends Component {
               </BtsrpButton>
             </Col>
           </Row>
-        </Jumbotron>
+        </div>
         {/* date picker module start*/}
         <Dialog
           open={this.state.datePickerOpen}
@@ -745,7 +745,7 @@ class Report extends Component {
         sessionStorage.getItem("ReportWithinRngY_MIN") === null
           ? this.state.response.WithinRange.y_min
           : sessionStorage.getItem("ReportWithinRngY_MIN");
-      this.setState();
+      // this.setState();
     } catch (err) {
       //mark this error ?
       return "Could not found data  , kindly re-upload the file";

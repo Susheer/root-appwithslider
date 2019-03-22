@@ -224,213 +224,203 @@ class Chartjs_2 extends Component {
       <React.Fragment>
         {this.renderRedirect()}
 
-        <Row>
-          <Col
-            md={4}
-            style={{
-              borderRight: "4px solid black",
-              borderRadius: "3px"
-            }}
-          >
-            <p
-              style={{
-                fontWeight: "bolder",
-                marginTop: "-40px",
-                marginLeft: "60px"
-              }}
-            >
-              Below Range
-            </p>
-            <Bubble
-              ref="chart1"
-              type="bubble"
-              data={BelowRange}
-              options={{
-                tooltips: {
-                  callbacks: {
-                    label: function(tooltipItem, data) {
-                      var datasetLabel = "";
-                      // var label = data.labels[tooltipItem.index];
-                      var label =
-                        data.datasets[tooltipItem.datasetIndex].label || "";
+        <Row className="chartTable">
+          <Col xl={4} md={4} sm={4} className="chartBelowRange">
+            <div style={{}} className="text-center chartBeloRangeCaption">
+              <p>Below Range</p>
+            </div>
+            <div>
+              <Bubble
+                height={165}
+                ref="chart1"
+                type="bubble"
+                data={BelowRange}
+                options={{
+                  responsive: true,
+                  aspectRatio: false,
+                  tooltips: {
+                    callbacks: {
+                      label: function(tooltipItem, data) {
+                        var datasetLabel = "";
+                        // var label = data.labels[tooltipItem.index];
+                        var label =
+                          data.datasets[tooltipItem.datasetIndex].label || "";
 
-                      return label;
+                        return label;
+                      }
                     }
+                  },
+                  animation: {
+                    duration: 0
+                  },
+                  hover: {
+                    animationDuration: 0
+                  },
+                  maintainAspectRatio: false,
+                  pan: {
+                    enabled: true,
+                    mode: "xy"
+                  },
+                  zoom: {
+                    enabled: true,
+                    mode: "xy"
+                  },
+
+                  layout: {
+                    padding: {}
+                  },
+                  scales: {
+                    xAxes: [
+                      {
+                        type: "linear",
+                        position: "bottom",
+                        display: false,
+                        ticks: {
+                          // below range
+                          max: parseInt(BelowRange.x_max),
+
+                          min: parseInt(BelowRange.x_min) //BelowRange.x_min
+                        }
+                      }
+                    ],
+                    yAxes: [
+                      {
+                        type: "linear",
+                        display: false,
+                        ticks: {
+                          min: parseInt(BelowRange.y_min),
+                          max: parseInt(BelowRange.y_max) //
+                        }
+                      }
+                    ]
                   }
-                },
-                animation: {
-                  duration: 0
-                },
-                hover: {
-                  animationDuration: 0
-                },
-                maintainAspectRatio: false,
-                pan: {
-                  enabled: true,
-                  mode: "xy"
-                },
-                zoom: {
-                  enabled: true,
-                  mode: "xy"
-                },
-
-                layout: { padding: { left: 10, right: 10, top: 5, bottom: 5 } },
-                scales: {
-                  xAxes: [
-                    {
-                      type: "linear",
-                      position: "bottom",
-                      display: false,
-                      ticks: {
-                        // below range
-                        max: parseInt(BelowRange.x_max),
-
-                        min: parseInt(BelowRange.x_min) //BelowRange.x_min
-                      }
-                    }
-                  ],
-                  yAxes: [
-                    {
-                      type: "linear",
-                      display: false,
-                      ticks: {
-                        min: parseInt(BelowRange.y_min),
-                        max: parseInt(BelowRange.y_max) //
-                      }
-                    }
-                  ]
-                }
-              }}
-              legend={{ display: false }}
-              getElementAtEvent={this.handleBubble}
-            />
+                }}
+                legend={{ display: false }}
+                getElementAtEvent={this.handleBubble}
+              />
+            </div>
           </Col>
 
-          <Col md={4}>
-            <p
-              style={{
-                fontWeight: "bolder",
-                marginTop: "-40px",
-                marginLeft: "60px"
-              }}
-            >
-              Within Range
-            </p>
-            <Bubble
-              ref={reference => (this.chartReference = reference)}
-              type="bubble"
-              data={WithinRange}
-              options={{
-                ...this.chartOpt,
-                animation: {
-                  duration: 0
-                },
-                hover: {
-                  animationDuration: 0
-                },
-                scales: {
-                  xAxes: [
-                    {
-                      type: "linear",
-                      position: "bottom",
-                      display: false,
-                      ticks: {
-                        // below range
-                        max: parseInt(WithinRange.x_max),
+          <Col md={4} className="chartWithinRange">
+            <div className="chartWithinRangeCaption text-center">
+              <p>Within Range</p>
+            </div>
+            <div>
+              <Bubble
+                height={165}
+                ref={reference => (this.chartReference = reference)}
+                type="bubble"
+                data={WithinRange}
+                options={{
+                  ...this.chartOpt,
+                  responsive: true,
+                  aspectRatio: false,
+                  animation: {
+                    duration: 0
+                  },
+                  hover: {
+                    animationDuration: 0
+                  },
+                  scales: {
+                    xAxes: [
+                      {
+                        type: "linear",
+                        position: "bottom",
+                        display: false,
+                        ticks: {
+                          // below range
+                          max: parseInt(WithinRange.x_max),
 
-                        min: parseInt(WithinRange.x_min) //BelowRange.x_min
+                          min: parseInt(WithinRange.x_min) //BelowRange.x_min
+                        }
                       }
-                    }
-                  ],
-                  yAxes: [
-                    {
-                      type: "linear",
-                      display: false,
-                      ticks: {
-                        min: parseInt(WithinRange.y_min),
-                        max: parseInt(WithinRange.y_max) //
+                    ],
+                    yAxes: [
+                      {
+                        type: "linear",
+                        display: false,
+                        ticks: {
+                          min: parseInt(WithinRange.y_min),
+                          max: parseInt(WithinRange.y_max) //
+                        }
                       }
-                    }
-                  ]
-                }
-              }}
-              legend={{ display: false }}
-              getElementAtEvent={this.handleBubble}
-            />
-          </Col>
-          <Col
-            md={4}
-            style={{ borderLeft: "4px solid black", borderRadius: "3px" }}
-          >
-            <p
-              style={{
-                fontWeight: "bolder",
-                marginTop: "-40px",
-                marginLeft: "60px"
-              }}
-            >
-              Above Range
-            </p>
-            <Bubble
-              type="bubble"
-              data={AboveRange}
-              options={{
-                tooltips: {
-                  callbacks: {
-                    label: function(tooltipItem, data) {
-                      var datasetLabel = "";
-                      // var label = data.labels[tooltipItem.index];
-                      var label =
-                        data.datasets[tooltipItem.datasetIndex].label || "";
-
-                      return label;
-                    }
+                    ]
                   }
-                },
-                animation: {
-                  duration: 0
-                },
-                hover: {
-                  animationDuration: 0
-                },
-                maintainAspectRatio: false,
-                pan: {
-                  enabled: true,
-                  mode: "xy"
-                },
-                zoom: {
-                  enabled: true,
-                  mode: "xy"
-                },
-                layout: { padding: { left: 0, right: 0, top: 5, bottom: 5 } },
-                scales: {
-                  xAxes: [
-                    {
-                      type: "linear",
-                      position: "bottom",
-                      display: false,
-                      ticks: {
-                        // AboveRange
+                }}
+                legend={{ display: false }}
+                getElementAtEvent={this.handleBubble}
+              />
+            </div>
+          </Col>
+          <Col md={4} className="chartAboveRange">
+            <div className="chartAboveRangeCaption text-center">
+              <p>Above Range</p>
+            </div>
+            <div>
+              <Bubble
+                type="bubble"
+                height={165}
+                data={AboveRange}
+                options={{
+                  responsive: true,
+                  aspectRatio: false,
+                  tooltips: {
+                    callbacks: {
+                      label: function(tooltipItem, data) {
+                        var datasetLabel = "";
+                        // var label = data.labels[tooltipItem.index];
+                        var label =
+                          data.datasets[tooltipItem.datasetIndex].label || "";
 
-                        max: parseInt(AboveRange.x_max), //,
-                        min: parseInt(AboveRange.x_min) //
+                        return label;
                       }
                     }
-                  ],
-                  yAxes: [
-                    {
-                      display: false,
-                      ticks: {
-                        max: parseInt(AboveRange.y_max), //,
-                        min: parseInt(AboveRange.y_min)
+                  },
+                  animation: {
+                    duration: 0
+                  },
+                  hover: {
+                    animationDuration: 0
+                  },
+                  maintainAspectRatio: false,
+                  pan: {
+                    enabled: true,
+                    mode: "xy"
+                  },
+                  zoom: {
+                    enabled: true,
+                    mode: "xy"
+                  },
+                  layout: { padding: {} },
+                  scales: {
+                    xAxes: [
+                      {
+                        type: "linear",
+                        position: "bottom",
+                        display: false,
+                        ticks: {
+                          // AboveRange
+
+                          max: parseInt(AboveRange.x_max), //,
+                          min: parseInt(AboveRange.x_min) //
+                        }
                       }
-                    }
-                  ]
-                }
-              }}
-              legend={{ display: false }}
-              getElementAtEvent={this.handleBubble}
-            />
+                    ],
+                    yAxes: [
+                      {
+                        display: false,
+                        ticks: {
+                          max: parseInt(AboveRange.y_max), //,
+                          min: parseInt(AboveRange.y_min)
+                        }
+                      }
+                    ]
+                  }
+                }}
+                legend={{ display: false }}
+                getElementAtEvent={this.handleBubble}
+              />
+            </div>
           </Col>
         </Row>
         <SnackbarNotification
