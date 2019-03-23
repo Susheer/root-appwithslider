@@ -2,27 +2,20 @@ import pandas as pd
 import numpy as np
 import json
 import sys
-import random
 from pymongo import MongoClient
+import random
 
-# //////////// MongoDb Connection
-
+index = sys.argv[1]
+# index='9'
 myclient = MongoClient('localhost', 27017)
 mydb = myclient["Artis"]
 reportTable = mydb["report_tbl"]
-Quant25_Table = mydb["Quantile_25_tbl"]
-Quant75_Table = mydb["Quantile_75_tbl"]
+Quant25_Table = mydb["Lookup_tbl"]
 
-index = sys.argv[1]
 
-# //////////////// Access I`th Index Row from mongoDb
 df = pd.DataFrame()
-# Quantile25 = pd.DataFrame()
-# Quantile75 = pd.DataFrame()
 try:
-    ASingleRow = reportTable.find({}).__getitem__(int(index))
-    df = pd.DataFrame.from_dict(ASingleRow, orient='index')
-
+    df = pd.DataFrame(list(reportTable.find({'Index': int(index)})))
 except:
     errorobj = {
         "success": "false",
@@ -32,113 +25,177 @@ except:
     print(Eobject)
 
 
-# ///////// Remove First Id Value from data
-df = df.drop("_id")
-Quantile25 = Quant25_Table.find_one()
-Quantile75 = Quant75_Table.find_one()
-Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').drop("_id")
-Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').drop("_id")
+df = df.drop(columns=["_id", "Index"])
+columns = np.array(df.columns)
+# print(df)
 
-columns = np.array(df.index)
-# print()
+# print(columns)
 df = df.apply(lambda x: pd.to_numeric(x, errors='coerce')).fillna(0)
 
-# //////////////// Access Quntile values from mongodb
 
+Quantile25 = Quant25_Table.find_one()
+# Quantile75 = Quant75_Table.find_one()
 
-# DataArray=np.array(df)
-# length=df.shape
+Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').drop('_id')
+# print(Quantile25)
 
-# for i in range(length[0]):
-#     DataArray=np.append(DataArray,df.iloc[1][0])
+columns = np.array(Quantile25.drop(["cstAt40Max", "cstAt40Min"]).index)
+columns = np.append(columns, "cstAt40")
+# print(columns)
+# Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').drop(index='_id')
 
-
-bellow = np.where(np.array(df) < np.array(Quantile25))
-outter = np.where(np.array(df) > np.array(Quantile75))
-inRange = np.where(np.logical_and(np.array(df) > np.array(
-    Quantile25), np.array(df) < np.array(Quantile75)))
+# Quantile75 = Quantile75.reindex(sorted(Quantile75.index))
+# Quantile25 = Quantile25.reindex(sorted(Quantile25.index))
 
 X_max = columns.__len__()/100
-
-y_max = (df[0].max()/100)
-y_min = (df[0].min()/y_max)-10
+# print(df.loc[0].max())
+y_max = (df.loc[0].max()/100)
+y_min = (df.loc[0].min()/y_max)-10
 
 
 jsonObject = {
     "success": "true",
-    "Error": [],
-    # "scales": {
-    #     "xAxes": [{
-    #         "type": "linear",
-    #         "position": "bottom",
-    #         "display": "false",
-    #         "ticks": {
-
-    #         }
-    #     }
-    #     ]
-    # },
     "WithinRange": {
         "x_min": -10,
         "x_max": 120,
-        "y_min": y_min,
+        "y_min": float(y_min),
         "y_max": 120,
         "datasets": []
     },
     "BelowRange": {
         "x_min": -10,
         "x_max": 120,
-        "y_min": y_min,
+        "y_min": float(y_min),
         "y_max": 120,
         "datasets": []
     },
     "AboveRange": {
         "x_min": -10,
         "x_max": 120,
-        "y_min": y_min,
+        "y_min": float(y_min),
         "y_max": 120,
         "datasets": []
     }
 }
-for clm in range(inRange[0].__len__()):
-    jsonObj = {
-        # "label": columns[clm],
-        "pointStyle": "circle",
-        "label": columns[inRange[0][clm]],
-        "data": [{
-            "x": random.randint(1, 100),
-            "y": random.randint(1, 100),
-            "r": 9,
-        }],
-        "backgroundColor": "#008000"
-    }
-    jsonObject["WithinRange"]["datasets"].append(jsonObj)
-for clm in range(bellow[0].__len__()):
-    # print(bellow[0][clm])
-    jsonObj = {
-        "label": columns[bellow[0][clm]],
-        "pointStyle": "circle",
-        "data": [{
-            "x": random.randint(1, 100),
-            "y": random.randint(1, 100),
-            "r": 9,
-        }],
-        "backgroundColor": "#FFA500"
-    }
-    jsonObject["BelowRange"]["datasets"].append(jsonObj)
-    # dataFrame.loc[bellow[clm], 'Range'] = 'Below_Range'
-for clm in range(outter[0].__len__()):
-    jsonObj = {
-        "label": columns[outter[0][clm]],
-        "pointStyle": "circle",
-        "data": [{
-            "x": random.randint(1, 100),
-            "y": random.randint(1, 100),
-            "r": 9,
-        }],
-        "backgroundColor": "#FFA500"
-    }
-    jsonObject["AboveRange"]["datasets"].append(jsonObj)
+Wct = 0
+Act = 0
+Bct = 0
+# columns[1]
+for clm in range(columns.__len__()):
+    # print(df.loc[columns[clm]][0],"----------------------------------")
+    # print(Quantile25.loc[columns[clm]][0])
+    if np.logical_and(columns[clm] != 'cstAt40', columns[clm] != 'FlashPoint'):
+        if df.iloc[0][columns[clm]] > Quantile25.loc[columns[clm]][0]:
+            jsonObj = {
+                "label": columns[clm],
+                "pointStyle": "circle",
+                "data": [{
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": 9,
+                }],
+                "backgroundColor": "#FFA500"
+            }
+            jsonObject["AboveRange"]["datasets"].append(jsonObj)
+            Act += 1
+        elif df.iloc[0][columns[clm]] < Quantile25.loc[columns[clm]][0]:
+            jsonObj = {
+                "label": columns[clm],
+                "pointStyle": "circle",
+                "data": [{
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": 9,
+                }],
+                "backgroundColor": "#008000"
+            }
+            jsonObject["WithinRange"]["datasets"].append(jsonObj)
+            Wct += 1
+        # else:
+        #     jsonObj = {
+        #         "label": columns[clm],
+        #         "pointStyle": "circle",
+        #         "data": [{
+        #             "x": random.randint(1, 100),
+        #             "y": random.randint(1, 100),
+        #             "r": 9,
+        #         }],
+        #         "backgroundColor": "#FFA500"
+        #     }
+        #     jsonObject["BelowRange"]["datasets"].append(jsonObj)
+        #     Bct += 1
+    else:
+        if columns[clm] == 'cstAt40':
+            if df.iloc[0][columns[clm]] > Quantile25.loc['cstAt40Max'][0]:
+                jsonObj = {
+                    "label": columns[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#FFA500"
+                }
+                jsonObject["AboveRange"]["datasets"].append(jsonObj)
+                Act += 1
+            elif np.logical_and(df.iloc[0][columns[clm]] > Quantile25.loc['cstAt40Min'][0], df.iloc[0][columns[clm]] < Quantile25.loc['cstAt40Max'][0]):
+                jsonObj = {
+                    "label": columns[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#008000"
+                }
+                jsonObject["WithinRange"]["datasets"].append(jsonObj)
+                Wct += 1
+            elif df.iloc[0][columns[clm]] < Quantile25.loc['cstAt40Min'][0]:
+                jsonObj = {
+                    "label": columns[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#FFA500"
+                }
+                jsonObject["BelowRange"]["datasets"].append(jsonObj)
+                Bct += 1
+        elif columns[clm] == 'FlashPoint':
+            if df.iloc[0][columns[clm]] > Quantile25.loc['FlashPoint'][0]:
+                jsonObj = {
+                    "label": columns[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#008000"
+                }
+                jsonObject["WithinRange"]["datasets"].append(jsonObj)
+                Act += 1
 
+            elif df.iloc[0][columns[clm]] < Quantile25.loc['FlashPoint'][0]:
+                jsonObj = {
+                    "label": columns[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#FFA500"
+                }
+                jsonObject["BelowRange"]["datasets"].append(jsonObj)
+                Bct += 1
+# print(jsonObject)
 Data = json.dumps(jsonObject)
 print(Data)
+# print("iiinnnn",Wct)
+# print("AAbb",Act)
+# print("Bell",Bct)

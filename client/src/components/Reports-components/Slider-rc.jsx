@@ -89,28 +89,95 @@ class SlideCom extends Component {
       success: data => {
         console.log("/api/getrange?QueryId=" + value);
         if (data.success === "true") {
-          //  this.state.response.AboveRange.datasets = data.AboveRange.datasets;
-          //this.state.response.WithinRange.datasets = data.WithinRange.datasets;
-          //this.state.response.BelowRange.datasets = data.BelowRange.datasets;
+          console.log("response from server ", this.state);
+          /*   this.state.response.AboveRange.datasets = data.AboveRange.datasets;
+          this.state.response.WithinRange.datasets = data.WithinRange.datasets;
+          this.state.response.BelowRange.datasets = data.BelowRange.datasets; */
 
-          localStorage.setItem(
-            "ReportWRD",
-            JSON.stringify(data.WithinRange.datasets)
-          );
-          localStorage.setItem(
-            "ReportARD",
-            JSON.stringify(data.AboveRange.datasets)
-          );
-          localStorage.setItem(
-            "ReportBRD",
-            JSON.stringify(data.BelowRange.datasets)
-          );
+          try {
+            console.log(" data.WithinRange.x_max", data.WithinRange.x_max);
+            //Above Range X,Y (MIN , Max)
+            sessionStorage.setItem(
+              "ReportAbovX_MAX",
+              Math.ceil(data.AboveRange.x_max)
+            );
+            sessionStorage.setItem(
+              "ReportAbovX_MIN",
+              Math.ceil(data.AboveRange.x_min)
+            );
+            sessionStorage.setItem(
+              "ReportAbovY_MAX",
+              Math.ceil(data.AboveRange.y_max)
+            );
+            sessionStorage.setItem(
+              "ReportAbovY_MIN",
+              Math.ceil(data.AboveRange.x_min)
+            );
+            //WithinRange Range X,Y (MIN , Max)
+
+            sessionStorage.setItem(
+              "ReportWithinRngX_MAX",
+
+              Math.ceil(data.WithinRange.x_max)
+            );
+            sessionStorage.setItem(
+              "ReportWithinRngX_MIN",
+              Math.ceil(data.WithinRange.x_min)
+            );
+            sessionStorage.setItem(
+              "ReportWithinRngY_MAX",
+              Math.ceil(data.WithinRange.y_max)
+            );
+            sessionStorage.setItem(
+              "ReportWithinRngY_MIN",
+              Math.ceil(data.WithinRange.y_min)
+            );
+
+            //BelowRange Range X,Y (MIN , Max)
+            sessionStorage.setItem(
+              "ReportBelowRngX_MAX",
+              Math.ceil(data.BelowRange.x_max)
+            );
+            sessionStorage.setItem(
+              "ReportBelowRngX_MIN",
+              Math.ceil(data.BelowRange.x_min)
+            );
+            sessionStorage.setItem(
+              "ReportBelowRngY_MAX",
+              Math.ceil(data.BelowRange.y_max)
+            );
+            sessionStorage.setItem(
+              "ReportBelowRngY_MIN",
+              Math.ceil(data.BelowRange.y_min)
+            );
+            // B
+          } catch (err) {
+            console.log("error while saveing to ls");
+          }
+
+          try {
+            localStorage.setItem(
+              "ReportWRD",
+              JSON.stringify(data.WithinRange.datasets)
+            );
+
+            localStorage.setItem(
+              "ReportARD",
+              JSON.stringify(data.AboveRange.datasets)
+            );
+            localStorage.setItem(
+              "ReportBRD",
+              JSON.stringify(data.BelowRange.datasets)
+            );
+          } catch (err) {
+            console.log("Error in wrdt", err);
+          }
           console.log("Data fetched from server");
           window.location.reload();
         } else {
           //this.handleSnackBar(data.Error[0].details);
           console.log("Error" + data.Error[0].details);
-          this.handleSnackBar("Failed" + data.Error[0].details);
+          this.handleSnackBar(data.Error[0].details);
         }
       }
     }).done(({ data }) => {

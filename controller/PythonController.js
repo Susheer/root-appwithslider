@@ -72,7 +72,16 @@ let PythonController = {
         // console.log(JSON.parse(result));
       } catch (e) {
         // Otherwise treat as a log entry
-        console.log(result);
+        return res.json({
+          success: false,
+          Error: [
+            {
+              statusCode: 400,
+              details: "Unxpected value to be forma"
+            }
+          ]
+        });
+        console.log(e);
       }
     });
     processd.on("error", err => {
@@ -82,9 +91,9 @@ let PythonController = {
       console.log(
         "Python:- Process- Code '" + code + "' Signal-'" + signal + "' "
       );
+      console.log("response compleated");
     });
 
-    console.log("response compleated");
     //res.json({ readFileAction: true });
   },
   auditTrail: function(req, res) {
@@ -105,7 +114,7 @@ let PythonController = {
         // console.log(JSON.parse(result));
       } catch (e) {
         // Otherwise treat as a log entry
-        console.log(result);
+        console.log(e);
       }
     });
     processd.on("error", err => {
@@ -185,6 +194,7 @@ let PythonController = {
     processd.stdout.on("data", data => {
       console.log("Python Code getSlider.py started");
       result += data.toString();
+      console.log(result);
     });
 
     processd.stdout.on("end", () => {
@@ -198,8 +208,9 @@ let PythonController = {
         // console.log(JSON.parse(result));
       } catch (e) {
         // Otherwise treat as a log entry
-        // console.log("Parsing Error:" + e);
+        console.log("Parsing Error:" + e);
         //console.log(result.toString());
+        // console.log(result);
         return res.json({
           success: false,
           Error: [
