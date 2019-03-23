@@ -142,6 +142,7 @@ class Report extends Component {
     console.log("Class Report-> handleSnackBar() invoked ", this.state.open);
   };
   componentWillMount() {
+    console.log("report wil mount excuted");
     this.getReportFromSession();
   }
 
@@ -285,18 +286,18 @@ class Report extends Component {
               "ReportWRD",
               JSON.stringify(data.WithinRange.datasets)
             );
+
+            localStorage.setItem(
+              "ReportARD",
+              JSON.stringify(data.AboveRange.datasets)
+            );
+            localStorage.setItem(
+              "ReportBRD",
+              JSON.stringify(data.BelowRange.datasets)
+            );
           } catch (err) {
             console.log("Error in wrdt", err);
           }
-
-          localStorage.setItem(
-            "ReportARD",
-            JSON.stringify(data.AboveRange.datasets)
-          );
-          localStorage.setItem(
-            "ReportBRD",
-            JSON.stringify(data.BelowRange.datasets)
-          );
         } else {
           try {
             this.handleSnackBar(data.Error[0].details);
@@ -682,7 +683,7 @@ class Report extends Component {
       let ReportWRD = JSON.parse(localStorage.getItem("ReportWRD"));
       let ReportARD = JSON.parse(localStorage.getItem("ReportARD"));
       let ReportBRD = JSON.parse(localStorage.getItem("ReportBRD"));
-
+      console.log("from machine ", ReportWRD);
       this.state.response.WithinRange.datasets = ReportWRD;
       this.state.response.AboveRange.datasets = ReportARD;
 
@@ -690,6 +691,7 @@ class Report extends Component {
       //ReportWithinRngY_MIN,
       // "ReportAbovY_MIN",
       //"ReportBelowRngX_MAX",
+
       this.state.response.BelowRange.x_max =
         sessionStorage.getItem("ReportBelowRngX_MAX") === null
           ? this.state.response.BelowRange.x_max
@@ -745,9 +747,10 @@ class Report extends Component {
         sessionStorage.getItem("ReportWithinRngY_MIN") === null
           ? this.state.response.WithinRange.y_min
           : sessionStorage.getItem("ReportWithinRngY_MIN");
-      // this.setState();
+      this.setState({});
     } catch (err) {
       //mark this error ?
+      console.log("Error while accessing form machine", err);
       return "Could not found data  , kindly re-upload the file";
     }
   }

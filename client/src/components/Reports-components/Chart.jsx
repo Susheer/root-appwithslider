@@ -88,11 +88,11 @@ class Chartjs_2 extends Component {
     maintainAspectRatio: false,
     pan: {
       enabled: true,
-      mode: "xy"
+      mode: "x"
     },
     zoom: {
       enabled: true,
-      mode: "xy"
+      mode: "x"
     },
     layout: {
       padding: { left: 0, right: 0, top: 0, bottom: 0 }
@@ -259,11 +259,11 @@ class Chartjs_2 extends Component {
                   maintainAspectRatio: false,
                   pan: {
                     enabled: true,
-                    mode: "xy"
+                    mode: "x"
                   },
                   zoom: {
                     enabled: true,
-                    mode: "xy"
+                    mode: "x"
                   },
 
                   layout: {
@@ -385,11 +385,11 @@ class Chartjs_2 extends Component {
                   maintainAspectRatio: false,
                   pan: {
                     enabled: true,
-                    mode: "xy"
+                    mode: "x"
                   },
                   zoom: {
                     enabled: true,
-                    mode: "xy"
+                    mode: "x"
                   },
                   layout: { padding: {} },
                   scales: {

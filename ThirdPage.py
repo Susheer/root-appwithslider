@@ -9,46 +9,38 @@ from pymongo import MongoClient
 myclient = MongoClient('localhost', 27017)
 mydb = myclient["Artis"]
 reportTable = mydb["report_tbl"]
-Quant25_Table = mydb["Quantile_25_tbl"]
-Quant75_Table = mydb["Quantile_75_tbl"]
+Quant25_Table = mydb["Lookup_tbl"]
+# Quant75_Table = mydb["Quantile_75_tbl"]
 # -----------------
 
 
 index = sys.argv[1]
 DataIndex = sys.argv[2]
-# DataIndex = 'Density'
-# index='15'
+# DataIndex = 'FlashPoint'
+# index='9'
 
 # //////////////// Access I`th Index Row from mongoDb
+# ASingleRow = reportTable.find({}).__getitem__(int(index))
+# df = pd.DataFrame.from_dict(ASingleRow, orient='index').drop('_id'))
+df = pd.DataFrame(list(reportTable.find({'Index': int(index)})))
 
-
-df = pd.DataFrame()
-# Quantile25 = pd.DataFrame()
-# Quantile75 = pd.DataFrame()
-try:
-    ASingleRow = reportTable.find({}).__getitem__(int(index))
-    df = pd.DataFrame.from_dict(ASingleRow, orient='index').drop("_id")
-
-except:
-    errorobj = {
-        "success": "false",
-        "Error": [{"statusCode": 500, "details": "Internal Error"}]
-    }
-    Eobject = json.dumps(errorobj)
-    print(Eobject)
-
-Quantile25 = Quant25_Table.find_one()
-Quantile75 = Quant75_Table.find_one()
-Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').drop("_id")
-Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').drop("_id")
-data = df.loc[DataIndex][0]
+data = df.iloc[0][DataIndex]
+# print(data)
 dff = df.apply(lambda x: pd.to_numeric(x, errors='coerce')).fillna(0)
 # arr = np.array(df)
-Data = dff.loc[DataIndex][0]
+Data = dff.iloc[0][DataIndex]
+# print(Data)
 
 
-Qt25 = Quantile25.loc[DataIndex][0]
-Qt75 = Quantile75.loc[DataIndex][0]
+Quantile25 = Quant25_Table.find_one()
+# Quantile75 = Quant75_Table.find_one()
+
+Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').drop('_id')
+# Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').drop('_id')
+
+# print(Quantile25.loc[DataIndex][0])
+# print(Quantile75.loc[DataIndex])
+
 
 jsonObject = {
     "success": "true",
@@ -71,53 +63,124 @@ jsonObject = {
         "x_min": 0,
         "x_max": 100,
         "y_min": 0,
-        "y_max": 100,
+        "y_max": 120,
         "datasets": []
     }
 }
 
-if Data < Qt25:
-    jsonObj = {
-        "label": str(data),
-        "pointStyle": "circle",
+if np.logical_and(DataIndex != 'cstAt40', DataIndex != 'FlashPoint'):
+    if Data < Quantile25.loc[DataIndex][0]:
+        jsonObj = {
+            "label": str(Data),
+            "pointStyle": "circle",
 
-        "data": [{
-            "x": 25,
-            "y": 70,
-            "r": 9,
-            "keepTooltipOpen": 'true'
-        }],
-        "backgroundColor": "#FFA500"
-    }
-    jsonObject["BelowRange"]["datasets"].append(jsonObj)
-elif Data > Qt75:
-    jsonObj = {
-        "label": str(data),
-        "pointStyle": "circle",
+            "data": [{
+                "x": 25,
+                "y": 70,
+                "r": 9,
+                "keepTooltipOpen": 'true'
+            }],
+            "backgroundColor": "#008000"
+        }
 
-        "data": [{
-            "x": 25,
-            "y": 70,
-            "r": 9,
-            "keepTooltipOpen": 'true'
-        }],
-        "backgroundColor": "#FFA500"
-    }
-    jsonObject["AboveRange"]["datasets"].append(jsonObj)
+        jsonObject["WithinRange"]["datasets"].append(jsonObj)
+
+    elif Data > Quantile25.loc[DataIndex][0]:
+        jsonObj = {
+            "label": str(Data),
+            "pointStyle": "circle",
+
+            "data": [{
+                "x": 25,
+                "y": 70,
+                "r": 9,
+                "keepTooltipOpen": 'true'
+            }],
+            "backgroundColor": "#FFA500"
+        }
+
+        jsonObject["AboveRange"]["datasets"].append(jsonObj)
+    # else:
+    #     jsonObj = {
+    #         "label": str(data),
+    #         "pointStyle": "circle",
+    #
+    #         "data": [{
+    #             "x": 25,
+    #             "y": 70,
+    #             "r": 9,
+    #             "keepTooltipOpen": 'true'
+    #         }],
+    #         "backgroundColor": "#008000"
+    #     }
+    #     jsonObject["WithinRange"]["datasets"].append(jsonObj)
 else:
-    jsonObj = {
-        "label": str(data),
-        "pointStyle": "circle",
+    if DataIndex == 'cstAt40':
+        if Data > Quantile25.loc['cstAt40Max'][0]:
+            jsonObj = {
+                "label": str(data),
+                "pointStyle": "circle",
+                "data": [{
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": 9,
+                }],
+                "backgroundColor": "#FFA500"
+            }
+            jsonObject["AboveRange"]["datasets"].append(jsonObj)
 
-        "data": [{
-            "x": 25,
-            "y": 70,
-            "r": 9,
-            "keepTooltipOpen": 'true'
-        }],
-        "backgroundColor": "#008000"
-    }
-    jsonObject["WithinRange"]["datasets"].append(jsonObj)
+        elif np.logical_and(Data > Quantile25.loc['cstAt40Min'][0], Data < Quantile25.loc['cstAt40Max'][0]):
+            jsonObj = {
+                "label": str(data),
+                "pointStyle": "circle",
+                "data": [{
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": 9,
+                }],
+                "backgroundColor": "#008000"
+            }
+            jsonObject["WithinRange"]["datasets"].append(jsonObj)
+
+        elif Data < Quantile25.loc['cstAt40Min'][0]:
+            jsonObj = {
+                "label": str(data),
+                "pointStyle": "circle",
+                "data": [{
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": 9,
+                }],
+                "backgroundColor": "#FFA500"
+            }
+            jsonObject["BelowRange"]["datasets"].append(jsonObj)
+    elif DataIndex == 'FlashPoint':
+        if Data > Quantile25.loc['FlashPoint'][0]:
+            jsonObj = {
+                "label": str(data),
+                "pointStyle": "circle",
+                "data": [{
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": 9,
+                }],
+                "backgroundColor": "#008000"
+            }
+            jsonObject["WithinRange"]["datasets"].append(jsonObj)
+
+        elif Data < Quantile25.loc['cstAt40Min'][0]:
+            jsonObj = {
+                "label": str(data),
+                "pointStyle": "circle",
+                "data": [{
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": 9,
+                }],
+                "backgroundColor": "#FFA500"
+            }
+            jsonObject["BelowRange"]["datasets"].append(jsonObj)
+
 
 data = json.dumps(jsonObject)
 
