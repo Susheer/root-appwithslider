@@ -70,7 +70,7 @@ jsonObject = {
 }
 for row in range(Dataframe.__len__()):
     # if np.logical_and(Dataframe.iloc[row]['Range'] == 0, Dataframe.iloc[row]['Range_1'] == 0):
-    if Dataframe.iloc[row]['Range_2'] > 20:
+    if Dataframe.iloc[row]['Range_2'] > 24:
         jsonObj = {
             "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
             "pointStyle": "circle",
