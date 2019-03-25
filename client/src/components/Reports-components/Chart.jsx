@@ -88,11 +88,11 @@ class Chartjs_2 extends Component {
     maintainAspectRatio: false,
     pan: {
       enabled: true,
-      mode: "x"
+      mode: "xy"
     },
     zoom: {
       enabled: true,
-      mode: "x"
+      mode: "xy"
     },
     layout: {
       padding: { left: 0, right: 0, top: 0, bottom: 0 }
@@ -203,6 +203,7 @@ class Chartjs_2 extends Component {
   };
   componentDidMount() {
     // console.log(this.chartReference);
+
     console.log("Chart Data", this.state.response);
   }
 
@@ -259,11 +260,11 @@ class Chartjs_2 extends Component {
                   maintainAspectRatio: false,
                   pan: {
                     enabled: true,
-                    mode: "x"
+                    mode: "xy"
                   },
                   zoom: {
                     enabled: true,
-                    mode: "x"
+                    mode: "xy"
                   },
 
                   layout: {

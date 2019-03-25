@@ -47,43 +47,43 @@ jsonObject = {
     "success": "true",
     "Error": [],
     "WithinRange": {
-        "x_min": x_min,
+        "x_min": -10,
         "x_max": 120,
-        "y_min": y_min,
+        "y_min": -10,
         "y_max": 120,
         "datasets": []
     },
     "BelowRange": {
-        "x_min": x_min,
+        "x_min": -10,
         "x_max": 120,
-        "y_min": y_min,
+        "y_min": -10,
         "y_max": 120,
         "datasets": []
     },
     "AboveRange": {
-        "x_min": x_min,
+        "x_min": -10,
         "x_max": 120,
-        "y_min": y_min,
+        "y_min": -10,
         "y_max": 120,
         "datasets": []
     }
 }
 for row in range(Dataframe.__len__()):
-    if np.logical_and(Dataframe.iloc[row]['Range'] == 0, Dataframe.iloc[row]['Range_1'] == 0):
-        if Dataframe.iloc[row]['Range_2'] > 20:
-            jsonObj = {
-                "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
-                "pointStyle": "circle",
-                "data": [{
-                    # "x": Dataframe.iloc[row]['IQR_main'],
-                    # "y": Dataframe.iloc[row]['Row_Main'],
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
-                    "r": 9
-                }],
-                "backgroundColor": "#008000"
-            }
-            jsonObject["WithinRange"]["datasets"].append(jsonObj)
+    # if np.logical_and(Dataframe.iloc[row]['Range'] == 0, Dataframe.iloc[row]['Range_1'] == 0):
+    if Dataframe.iloc[row]['Range_2'] > 24:
+        jsonObj = {
+            "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
+            "pointStyle": "circle",
+            "data": [{
+                # "x": Dataframe.iloc[row]['IQR_main'],
+                # "y": Dataframe.iloc[row]['Row_Main'],
+                "x": random.randint(1, 100),
+                "y": random.randint(1, 100),
+                "r": 9
+            }],
+            "backgroundColor": "#008000"
+        }
+        jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
     else:
         jsonObj = {

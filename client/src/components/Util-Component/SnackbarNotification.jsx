@@ -52,7 +52,7 @@ class SimpleSnackbar extends React.Component {
               size="small"
               onClick={this.handleClose}
             >
-              UNDO
+              Got it
             </Button>,
             <IconButton
               key="close"

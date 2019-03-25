@@ -72,16 +72,16 @@ let PythonController = {
         // console.log(JSON.parse(result));
       } catch (e) {
         // Otherwise treat as a log entry
+        console.log(e);
         return res.json({
           success: false,
           Error: [
             {
               statusCode: 400,
-              details: "Unxpected value to be forma"
+              details: config.ErrorMsg.ParsingErr
             }
           ]
         });
-        console.log(e);
       }
     });
     processd.on("error", err => {
@@ -97,6 +97,7 @@ let PythonController = {
     //res.json({ readFileAction: true });
   },
   auditTrail: function(req, res) {
+    console.log("reportId->", req.query.ReportId);
     let processd = spawn("python", ["./SecondGraph.py", req.query.ReportId]);
     let result = "";
     processd.stdout.on("data", data => {
@@ -113,8 +114,16 @@ let PythonController = {
         res.send(jsonResponse);
         // console.log(JSON.parse(result));
       } catch (e) {
-        // Otherwise treat as a log entry
         console.log(e);
+        return res.json({
+          success: false,
+          Error: [
+            {
+              statusCode: 400,
+              details: config.ErrorMsg.ParsingErr
+            }
+          ]
+        });
       }
     });
     processd.on("error", err => {
@@ -165,7 +174,7 @@ let PythonController = {
           Error: [
             {
               statusCode: 400,
-              details: "Data parsing failed due to wrong format"
+              details: config.ErrorMsg.ParsingErr
             }
           ]
         });
