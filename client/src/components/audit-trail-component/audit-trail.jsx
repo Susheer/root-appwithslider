@@ -110,6 +110,7 @@ class AuditTrail extends Component {
     } else if (this.props.location.state.PageName === "SUMMARY_REPORT") {
       this.loadDataFromMachine();
     }
+    // window.history.pushState(null, null, window.location.href);
   }
   setRedirect = () => {
     this.setState({ redirect: true });

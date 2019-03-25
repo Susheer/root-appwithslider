@@ -53,7 +53,8 @@ class SlideCom extends Component {
   state = {
     open: false,
     snakbarMessage: "Slider data to be displayed",
-    sliderFlag: false
+    sliderFlag: false,
+    onChangeSliderValue: -1
   };
 
   handleSliderInput = value => {
@@ -80,7 +81,7 @@ class SlideCom extends Component {
       this.handleSliderInput(value);
     } else {
       this.handleSnackBar("Sorry: Seems you missed out somthing");
-      return;
+      // return;
     }
     //this.handleSnackBar("");
     $.ajax({
@@ -89,7 +90,7 @@ class SlideCom extends Component {
       success: data => {
         console.log("/api/getrange?QueryId=" + value);
         if (data.success === "true") {
-          console.log("response from server ", this.state);
+          console.log("response from server ", data);
           /*   this.state.response.AboveRange.datasets = data.AboveRange.datasets;
           this.state.response.WithinRange.datasets = data.WithinRange.datasets;
           this.state.response.BelowRange.datasets = data.BelowRange.datasets; */
@@ -174,6 +175,8 @@ class SlideCom extends Component {
           }
           console.log("Data fetched from server");
           window.location.reload();
+          //this.setState({ sliderFlag: false });
+          //console.log("excuted querry");
         } else {
           //this.handleSnackBar(data.Error[0].details);
           console.log("Error" + data.Error[0].details);
@@ -187,35 +190,47 @@ class SlideCom extends Component {
     });
   };
 
-  log = value => {
-    if (value === 0) {
+  onAfterCh(value) {
+    // value = this.state.onChangeSliderValue;
+
+    console.log("onAfterChangeEvent", this.state.onChangeSliderValue);
+    if (this.state.onChangeSliderValue === 0) {
       console.log("Forver");
 
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 0);
       this.handleSliderQuery(0);
-    } else if (value === 6) {
+    } else if (this.state.onChangeSliderValue === 6) {
       console.log("Year");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 6);
       this.handleSliderQuery(6);
-    } else if (value === 12) {
+    } else if (this.state.onChangeSliderValue === 12) {
       console.log("3 Month");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 12);
       this.handleSliderQuery(12);
-    } else if (value === 18) {
+    } else if (this.state.onChangeSliderValue === 18) {
       console.log("1 Month");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 18);
       this.handleSliderQuery(18);
-    } else if (value === 24) {
+    } else if (this.state.onChangeSliderValue === 24) {
       console.log("15 days");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 24);
       this.handleSliderQuery(24);
-    } else if (value === 30) {
+    } else if (this.state.onChangeSliderValue === 30) {
       console.log("week");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 30);
       this.handleSliderQuery(30);
     } else {
       console.log("not found");
     }
+  }
+
+  onBeforeCh(value) {
+    //console.log("OnBeforChange", value);
+  }
+  log = val => {
+    // this.setState({ onChangeSliderValue: val });
+    this.state.onChangeSliderValue = val;
+    console.log("onChangeEvent", this.state.onChangeSliderValue);
   };
 
   handleSnackBar = message => {
@@ -239,6 +254,8 @@ class SlideCom extends Component {
             marks={marks}
             step={6}
             onChange={this.log}
+            onAfterChange={this.onAfterCh.bind(this)}
+            onBeforeChange={this.onBeforeCh.bind(this)}
             defaultValue={
               sessionStorage.getItem(SLIDER_VALUE_SESSION) === null
                 ? 0

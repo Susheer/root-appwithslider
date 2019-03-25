@@ -7,7 +7,13 @@ var config = {
   uploadPath: "Shared",
   option: {
     useNewUrlParser: true
+  },
+
+  ErrorMsg: {
+    NOT_FOUND: "Record not found",
+    ParsingErr: "Unexpected response from python"
   }
+
   //Log config
 };
 

@@ -6,6 +6,7 @@ import Button from "@material-ui/core/Button";
 import Chart from "./Chart";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import SlideCom from "./Slider-rc";
+import moment from "moment";
 import { inspect } from "util"; // or directly
 import {
   From_DATE_SESSION,
@@ -38,6 +39,7 @@ import {
 
 import { Snackbar } from "@material-ui/core";
 import { timingSafeEqual } from "crypto";
+import { getOverlappingDaysInIntervals } from "date-fns";
 
 class Report extends Component {
   state = {
@@ -91,7 +93,7 @@ class Report extends Component {
     datePickerSelectedDateTo:
       localStorage.getItem(TO_DATE_SESSION) === null
         ? new Date()
-        : new Date(localStorage.getItem(TO_DATE_SESSION))
+        : new Date(localStorage.getItem(TO_DATE_SESSION)).toLocaleDateString()
   };
 
   handleFileBeingProcessedSnackbarClick = () => {
@@ -111,7 +113,17 @@ class Report extends Component {
     console.log("handleDatePickerClickOpen()->Clicked from report component");
   };
 
-  handleDatePickerClickClose = () => {
+  handleDatePickerOnPick = () => {
+    /*  console.log(
+      "picking date ok",
+      this.state.datePickerSelectedDateFrom + " To",
+      this.state.datePickerSelectedDateTo
+    ); */
+    this.setState({ datePickerOpen: false });
+    this.getFromRange();
+  };
+
+  handleDatePickerClickClose = (event, reason) => {
     let message = this.setState({ datePickerOpen: false });
     message =
       "From:" +
@@ -120,7 +132,8 @@ class Report extends Component {
       this.state.datePickerSelectedDateTo;
 
     // this.handleSnackBar(TO_DATE_SESSION + message);
-    this.getFromRange();
+    //this.getFromRange();
+    console.log("onclosed date picker");
   };
 
   handleDatePickerDateChangeFrom = date => {
@@ -142,6 +155,26 @@ class Report extends Component {
     console.log("Class Report-> handleSnackBar() invoked ", this.state.open);
   };
   componentWillMount() {
+    //this.props.history.goForward();
+    /*  window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function(event) {
+      window.history.go(1);
+    }; */
+    /*  this._isMounted = true;
+    console.log("lof bux`xtton");
+    window.onpopstate = () => {
+      if (this._isMounted) {
+        const { hash } = window.location;
+        // alert("IndexOf " + hash.indexOf("Report"));
+        if (hash.indexOf("Report") > -1 && this.state.value !== 0)
+          this.setState({ value: 0 });
+        if (hash.indexOf("users") > -1 && this.state.value !== 1)
+          this.setState({ value: 1 });
+
+        if (hash.indexOf("data") > -1 && this.state.value !== 2)
+          this.setState({ value: 2 });
+      }
+    }; */
     console.log("report wil mount excuted");
     this.getReportFromSession();
   }
@@ -329,8 +362,8 @@ class Report extends Component {
   getFromRange = () => {
     //  event.preventDefault();
     // var data = new FormData();
-    let fDate = new Date(this.state.datePickerSelectedDateFrom.toDateString());
-    let toDate = new Date(this.state.datePickerSelectedDateTo.toDateString());
+    let fDate = new Date(this.state.datePickerSelectedDateFrom);
+    let toDate = new Date(this.state.datePickerSelectedDateTo);
     // alert("from" + fDate.getTime() + " To: " + toDate.getTime());
     //data.append("file", event.target.files[0]);
     this.handleSnackBar("Request is  being process, please stay on page ");
@@ -667,7 +700,7 @@ class Report extends Component {
             <Button onClick={this.handleDatePickerClickClose} color="secondary">
               Cancel
             </Button>
-            <Button onClick={this.handleDatePickerClickClose} color="secondary">
+            <Button onClick={this.handleDatePickerOnPick} color="secondary">
               Pick
             </Button>
           </DialogActions>
@@ -780,11 +813,7 @@ class Report extends Component {
 }
 
 function PaperComponent(props) {
-  return (
-    <Draggable>
-      <Paper {...props} />
-    </Draggable>
-  );
+  return <Paper {...props} />;
 }
 
 export default Report;
