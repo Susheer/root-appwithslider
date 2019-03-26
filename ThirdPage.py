@@ -71,7 +71,7 @@ jsonObject = {
 if np.logical_and(DataIndex != 'cstAt40', DataIndex != 'FlashPoint'):
     if Data < Quantile25.loc[DataIndex][0]:
         jsonObj = {
-            "label": "{} {}".format("Observation", str(Data)),
+            "label": "{},{} = {}".format("Observation", DataIndex, str(Data)),
             "pointStyle": "circle",
 
             "data": [{
@@ -87,7 +87,7 @@ if np.logical_and(DataIndex != 'cstAt40', DataIndex != 'FlashPoint'):
 
     elif Data > Quantile25.loc[DataIndex][0]:
         jsonObj = {
-            "label": "{} {} , {} , {} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "should be less than", Quantile25.loc[DataIndex][0]),
+            "label": "{},{} = {},, , {} , {} {} {}".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be less than", Quantile25.loc[DataIndex][0]),
             "pointStyle": "circle",
 
             "data": [{
@@ -118,12 +118,13 @@ else:
     if DataIndex == 'cstAt40':
         if Data > Quantile25.loc['cstAt40Max'][0]:
             jsonObj = {
-                "label": "{} {} , {} , {} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "should be less than", Quantile25.loc['cstAt40Max'][0]),
+                "label": "{},{} = {},, , {} , {} {} {}".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be less than", Quantile25.loc['cstAt40Max'][0]),
                 "pointStyle": "circle",
                 "data": [{
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#FFA500"
             }
@@ -131,12 +132,13 @@ else:
 
         elif np.logical_and(Data > Quantile25.loc['cstAt40Min'][0], Data < Quantile25.loc['cstAt40Max'][0]):
             jsonObj = {
-                "label": "{} {}".format("Observation", str(Data)),
+                "label": "{},{} = {}".format("Observation", DataIndex, str(Data)),
                 "pointStyle": "circle",
                 "data": [{
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#008000"
             }
@@ -144,12 +146,13 @@ else:
 
         elif Data < Quantile25.loc['cstAt40Min'][0]:
             jsonObj = {
-                "label": "{} {} , {} , {} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "should be geater than", Quantile25.loc['cstAt40Min'][0]),
+                "label": "{},{} = {},, , {} , {} {} {}".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be geater than", Quantile25.loc['cstAt40Min'][0]),
                 "pointStyle": "circle",
                 "data": [{
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#FFA500"
             }
@@ -157,12 +160,13 @@ else:
     elif DataIndex == 'FlashPoint':
         if Data > Quantile25.loc['FlashPoint'][0]:
             jsonObj = {
-                "label": "{} {}".format("Observation", str(Data)),
+                "label": "{} ,{} = {}".format("Observation", DataIndex, str(Data)),
                 "pointStyle": "circle",
                 "data": [{
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#008000"
             }
@@ -170,12 +174,13 @@ else:
 
         elif Data < Quantile25.loc['FlashPoint'][0]:
             jsonObj = {
-                "label": "{} {} , {} , {} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "should be greater than", Quantile25.loc['FlashPoint'][0]),
+                "label": "{},{} = {},, , {} , {} {} {}".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be greater than", Quantile25.loc['FlashPoint'][0]),
                 "pointStyle": "circle",
                 "data": [{
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#FFA500"
             }

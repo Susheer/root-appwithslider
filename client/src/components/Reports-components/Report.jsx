@@ -156,10 +156,10 @@ class Report extends Component {
   };
   componentWillMount() {
     //this.props.history.goForward();
-    /*  window.history.pushState(null, null, window.location.href);
+    window.history.pushState(null, null, window.location.href);
     window.onpopstate = function(event) {
       window.history.go(1);
-    }; */
+    };
     /*  this._isMounted = true;
     console.log("lof bux`xtton");
     window.onpopstate = () => {

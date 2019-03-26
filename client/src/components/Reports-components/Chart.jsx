@@ -9,6 +9,7 @@ import { Redirect } from "react-router-dom";
 import * as zoom from "chartjs-plugin-zoom";
 import {} from "../constants";
 import { min } from "date-fns";
+import { func } from "prop-types";
 
 class Chartjs_2 extends Component {
   state = {
@@ -30,6 +31,7 @@ class Chartjs_2 extends Component {
       var datasets = chart.data.datasets;
 
       chart.pluginTooltips = [];
+
       for (let i = 0; i < datasets.length; i++) {
         for (let j = 0; j < datasets[i].data.length; j++) {
           if (
@@ -37,6 +39,7 @@ class Chartjs_2 extends Component {
             !chart.getDatasetMeta(i).hidden
           ) {
             //When we find one, we are pushing all informations to create the tooltip.
+            chart.ctx.strokeStyle = "red";
             chart.pluginTooltips.push(
               new Chart.Tooltip(
                 {
@@ -56,6 +59,7 @@ class Chartjs_2 extends Component {
 
     afterDatasetsDraw: function(chart, easing) {
       // Draw tooltips
+
       Chart.helpers.each(chart.pluginTooltips, function(tooltip) {
         tooltip.initialize();
         tooltip.update();
@@ -75,14 +79,35 @@ class Chartjs_2 extends Component {
   chartReference = {};
   chartOpt = {
     tooltips: {
+      displayColors: false,
       callbacks: {
         label: function(tooltipItem, data) {
           var datasetLabel = "";
           // var label = data.labels[tooltipItem.index];
           var label = data.datasets[tooltipItem.datasetIndex].label || "";
+          if (data.datasets.length === 1) {
+            // console.log("One tooltips found", data.datasets[0]);
+            // object exists in data array
+            if (data.datasets[0].data.length === 1) {
+              // check if tooltips key is exists
+              let flag = Object.keys(data.datasets[0].data[0]).includes(
+                "keepTooltipOpen"
+              );
+
+              if (flag) {
+                console.log("[Chart.js] point detected");
+                let arr = label.split(",");
+                label = arr;
+              }
+            }
+          }
 
           return label;
         }
+      },
+      custom: function(tooltip) {
+        if (!tooltip) return;
+        tooltip.displayColors = false;
       }
     },
     maintainAspectRatio: false,
@@ -240,15 +265,36 @@ class Chartjs_2 extends Component {
                   responsive: true,
                   aspectRatio: false,
                   tooltips: {
+                    displayColors: false,
                     callbacks: {
                       label: function(tooltipItem, data) {
                         var datasetLabel = "";
                         // var label = data.labels[tooltipItem.index];
                         var label =
                           data.datasets[tooltipItem.datasetIndex].label || "";
+                        if (data.datasets.length === 1) {
+                          // console.log("One tooltips found", data.datasets[0]);
+                          // object exists in data array
+                          if (data.datasets[0].data.length === 1) {
+                            // check if tooltips key is exists
+                            let flag = Object.keys(
+                              data.datasets[0].data[0]
+                            ).includes("keepTooltipOpen");
+
+                            if (flag) {
+                              console.log("[Chart.js] point detected");
+                              let arr = label.split(",");
+                              label = arr;
+                            }
+                          }
+                        }
 
                         return label;
                       }
+                    },
+                    custom: function(tooltip) {
+                      if (!tooltip) return;
+                      tooltip.displayColors = false;
                     }
                   },
                   animation: {
@@ -366,15 +412,36 @@ class Chartjs_2 extends Component {
                   responsive: true,
                   aspectRatio: false,
                   tooltips: {
+                    displayColors: false,
                     callbacks: {
                       label: function(tooltipItem, data) {
                         var datasetLabel = "";
                         // var label = data.labels[tooltipItem.index];
                         var label =
                           data.datasets[tooltipItem.datasetIndex].label || "";
+                        if (data.datasets.length === 1) {
+                          // console.log("One tooltips found", data.datasets[0]);
+                          // object exists in data array
+                          if (data.datasets[0].data.length === 1) {
+                            // check if tooltips key is exists
+                            let flag = Object.keys(
+                              data.datasets[0].data[0]
+                            ).includes("keepTooltipOpen");
+
+                            if (flag) {
+                              console.log("[Chart.js] point detected");
+                              let arr = label.split(",");
+                              label = arr;
+                            }
+                          }
+                        }
 
                         return label;
                       }
+                    },
+                    custom: function(tooltip) {
+                      if (!tooltip) return;
+                      tooltip.displayColors = false;
                     }
                   },
                   animation: {
