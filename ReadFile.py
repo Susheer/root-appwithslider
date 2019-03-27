@@ -200,7 +200,8 @@ jsonObject = {
 
 
 for row in range(b[0]):
-    if RangeDataFrame.iloc[row][0] > 24:
+    if np.logical_and(RangeDataFrame.iloc[row][1] == 1, RangeDataFrame.iloc[row][0] == RangeDataFrame.iloc[row][2]):
+        # if RangeDataFrame.iloc[row][0] > 24:
         # if np.logical_and(RangeDataFrame.iloc[row][1] == 0, RangeDataFrame.iloc[row][2] == 0):
         # if RangeDataFrame.iloc[row][0] != 0:
         jsonObj = {

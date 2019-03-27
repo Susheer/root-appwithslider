@@ -18,7 +18,7 @@ class Chartjs_2 extends Component {
     redirect: false,
     response: this.props.response,
     open: false,
-    snakbarMessage: "data to be display",
+    snakbarMessage: "Please wait...",
     xmax: 0
   };
   setRedirect = bubble => {
@@ -257,7 +257,6 @@ class Chartjs_2 extends Component {
             </div>
             <div>
               <Bubble
-                height={165}
                 ref="chart1"
                 type="bubble"
                 data={BelowRange}
