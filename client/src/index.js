@@ -9,6 +9,7 @@ import { combineReducers, createStore } from "redux";
 import { Provider } from "react-redux";
 import productReducer from "./reducers/ProductReducer";
 import userReducer from "./reducers/user-reducer";
+import Insights from "../src/Insights/Insights-components";
 
 const allReducers = combineReducers({
   product: productReducer,
@@ -29,7 +30,8 @@ global.store = store;
 // now dispatch action
 
 console.log("store.getStore()", store.getState());
-
+{
+}
 ReactDOM.render(
   <BrowserRouter>
     <App />
