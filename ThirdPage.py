@@ -143,6 +143,7 @@ else:
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#FFA500"
             }
@@ -156,6 +157,7 @@ else:
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#008000"
             }
@@ -169,6 +171,7 @@ else:
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#FFA500"
             }
@@ -182,6 +185,7 @@ else:
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#008000"
             }
@@ -195,6 +199,7 @@ else:
                     "x": random.randint(1, 100),
                     "y": random.randint(1, 100),
                     "r": 9,
+                    "keepTooltipOpen": 'true'
                 }],
                 "backgroundColor": "#FFA500"
             }

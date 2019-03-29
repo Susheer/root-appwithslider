@@ -26,7 +26,8 @@ try:
             "Error": [{"statusCode": 404, "details": "Records Not Found"}]
         }
         Eobject = json.dumps(errorobj)
-        print(Eobject)
+        # print(Eobject)
+        exit()
 
 except:
     errorobj = {
@@ -35,6 +36,7 @@ except:
     }
     Eobject = json.dumps(errorobj)
     print(Eobject)
+    exit()
 #
 # x_max = Dataframe['IQR_main'].max()/100
 # x_min = Dataframe['IQR_main'].min()/x_max-20
@@ -72,19 +74,19 @@ for row in range(Dataframe.__len__()):
     if Dataframe.iloc[row]['Range'] == Dataframe.iloc[row]['In_Range']:
     #if np.logical_and(Dataframe.iloc[row]['Range'] == 0, Dataframe.iloc[row]['Range_1'] == 0):
         # if Dataframe.iloc[row]['Range_2'] > 20:
-            jsonObj = {
-                "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
-                "pointStyle": "circle",
-                "data": [{
-                    # "x": Dataframe.iloc[row]['IQR_main'],
-                    # "y": Dataframe.iloc[row]['Row_Main'],
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
-                    "r": 9
-                }],
-                "backgroundColor": "#008000"
-            }
-            jsonObject["WithinRange"]["datasets"].append(jsonObj)
+        jsonObj = {
+            "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
+            "pointStyle": "circle",
+            "data": [{
+                # "x": Dataframe.iloc[row]['IQR_main'],
+                # "y": Dataframe.iloc[row]['Row_Main'],
+                "x": random.randint(1, 100),
+                "y": random.randint(1, 100),
+                "r": 9
+            }],
+            "backgroundColor": "#008000"
+        }
+        jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
     else:
         jsonObj = {
