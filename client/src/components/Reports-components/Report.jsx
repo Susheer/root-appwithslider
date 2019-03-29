@@ -43,6 +43,7 @@ import { getOverlappingDaysInIntervals } from "date-fns";
 
 class Report extends Component {
   state = {
+    dummyState: "raju",
     isReportBusy: false,
     count: 25,
     fileBeingProcessedSnackbaropen: false,
@@ -87,13 +88,13 @@ class Report extends Component {
     // The first commit of Material-UI
 
     datePickerSelectedDateFrom:
-      localStorage.getItem(From_DATE_SESSION) === null
+      sessionStorage.getItem(From_DATE_SESSION) === null
         ? new Date()
-        : new Date(localStorage.getItem(From_DATE_SESSION)),
+        : new Date(sessionStorage.getItem(From_DATE_SESSION)),
     datePickerSelectedDateTo:
-      localStorage.getItem(TO_DATE_SESSION) === null
+      sessionStorage.getItem(TO_DATE_SESSION) === null
         ? new Date()
-        : new Date(localStorage.getItem(TO_DATE_SESSION)).toLocaleDateString()
+        : new Date(sessionStorage.getItem(TO_DATE_SESSION)).toLocaleDateString()
   };
 
   handleFileBeingProcessedSnackbarClick = () => {
@@ -123,27 +124,39 @@ class Report extends Component {
     this.getFromRange();
   };
 
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log("---------------ShdComUpdt--------------------------");
+    console.log("NextProps-", nextProps, "nextState-", nextState);
+    console.log("this.state", this.state);
+
+    console.log("this.state===nextState->", this.state === nextState);
+
+    return true;
+  }
+
   handleDatePickerClickClose = (event, reason) => {
+    // console.log("[Report] Event", event);
+    console.log("[Report] handleDatePickerClickClose()- Reason", reason);
+    if (reason === "backdropClick") {
+      this.state.datePickerOpen = true;
+      return false;
+    }
     let message = this.setState({ datePickerOpen: false });
-    message =
+    /*   message =
       "From:" +
       this.state.datePickerSelectedDateFrom +
       " To:" +
-      this.state.datePickerSelectedDateTo;
-
-    // this.handleSnackBar(TO_DATE_SESSION + message);
-    //this.getFromRange();
-    console.log("onclosed date picker");
+      this.state.datePickerSelectedDateTo; */
   };
 
   handleDatePickerDateChangeFrom = date => {
-    localStorage.setItem(From_DATE_SESSION, date);
-    // alert(localStorage.getItem(From_DATE_SESSION));
+    sessionStorage.setItem(From_DATE_SESSION, date);
+    // alert(sessionStorage.getItem(From_DATE_SESSION));
 
     this.setState({ datePickerSelectedDateFrom: date });
   };
   handleDatePickerDateChangeTo = date => {
-    localStorage.setItem(TO_DATE_SESSION, date);
+    sessionStorage.setItem(TO_DATE_SESSION, date);
 
     this.setState({ datePickerSelectedDateTo: date });
   };
@@ -152,7 +165,7 @@ class Report extends Component {
       snakbarMessage: message,
       open: true
     });
-    console.log("Class Report-> handleSnackBar() invoked ", this.state.open);
+    // console.log("Class Report-> handleSnackBar() invoked ", this.state.open);
   };
   componentWillMount() {
     //this.props.history.goForward();
@@ -246,8 +259,11 @@ class Report extends Component {
         /* this.setState({
           fileBeingProcessedSnackbaropen: false
         }); */
-
+        this.setState({ fileBeingProcessedSnackbaropen: false });
         if (data.success === "true") {
+          // slider value as 15 days for first file upload
+          // so set this value as 24 in browser
+          sessionStorage.setItem(SLIDER_VALUE_SESSION, 24);
           console.log("inside success:true");
           /*  this.state.response.AboveRange.datasets = data.AboveRange.datasets;
           this.state.response.WithinRange.datasets = data.WithinRange.datasets;
@@ -315,22 +331,25 @@ class Report extends Component {
           }
 
           try {
-            localStorage.setItem(
+            sessionStorage.setItem(
               "ReportWRD",
               JSON.stringify(data.WithinRange.datasets)
             );
 
-            localStorage.setItem(
+            sessionStorage.setItem(
               "ReportARD",
               JSON.stringify(data.AboveRange.datasets)
             );
-            localStorage.setItem(
+            sessionStorage.setItem(
               "ReportBRD",
               JSON.stringify(data.BelowRange.datasets)
             );
           } catch (err) {
             console.log("Error in wrdt", err);
           }
+
+          this.setGreeting();
+          setTimeout("window.location.reload();", 2000);
         } else {
           try {
             this.handleSnackBar(data.Error[0].details);
@@ -338,15 +357,13 @@ class Report extends Component {
             console.log("Error in ");
           }
         }
-        this.setGreeting();
-        setTimeout("window.location.reload();", 2000);
       }.bind(this),
       error: ({ err }) => {
         this.handleSnackBar("Server denied the request");
       }
     }).done(({ json }) => {
       // console.log(json);
-      sessionStorage.setItem(SLIDER_VALUE_SESSION, 0);
+      sessionStorage.setItem(SLIDER_VALUE_SESSION, 24);
       // window.location.reload();
     });
   };
@@ -375,26 +392,33 @@ class Report extends Component {
           "/api/getrange?from=" + fDate.getTime() + "&to=" + toDate.getTime()
         ); */
         if (data.success === "true") {
-          this.state.response.AboveRange.datasets = data.AboveRange.datasets;
-          this.state.response.WithinRange.datasets = data.WithinRange.datasets;
-          this.state.response.BelowRange.datasets = data.BelowRange.datasets;
-          console.log("data is plotting");
-          localStorage.setItem(
-            "ReportWRD",
-            JSON.stringify(data.WithinRange.datasets)
-          );
-          localStorage.setItem(
-            "ReportARD",
-            JSON.stringify(data.AboveRange.datasets)
-          );
-          localStorage.setItem(
-            "ReportBRD",
-            JSON.stringify(data.BelowRange.datasets)
-          );
-          console.log("Data fetched from server");
-          this.setState({ response: data });
-          console.log("Deta from server", data);
-          window.location.reload();
+          this.state.response.AboveRange = data.AboveRange;
+          this.state.response.WithinRange = data.WithinRange;
+          this.state.response.BelowRange = data.BelowRange;
+          try {
+            sessionStorage.setItem(
+              "ReportWRD",
+              JSON.stringify(data.WithinRange.datasets)
+            );
+            sessionStorage.setItem(
+              "ReportARD",
+              JSON.stringify(data.AboveRange.datasets)
+            );
+            sessionStorage.setItem(
+              "ReportBRD",
+              JSON.stringify(data.BelowRange.datasets)
+            );
+          } catch (err) {
+            console.log("[Report] GetRange: Error storing data ");
+          }
+          console.log("[Report] GetRange:success");
+
+          console.log("[Report] GetRange:Recieved from server");
+          // this.setState({ response: data });
+          // console.log("Deta from server", data);
+          // window.location.reload();
+
+          this.setState({ open: false });
         } else {
           this.handleSnackBar(data.Error[0].details);
         }
@@ -637,7 +661,10 @@ class Report extends Component {
                 style={{ border: "none", paddingTop: "6px" }}
                 className="text-center"
               >
-                <SlideCom />
+                <SlideCom
+                  dummyState={this.changeDummyStateHandler}
+                  reportResHandler={this.reportResHandler}
+                />
               </Col>
             </Col>
             <Col className="float-left" style={{}} className="reportPickRange">
@@ -701,21 +728,32 @@ class Report extends Component {
               Cancel
             </Button>
             <Button onClick={this.handleDatePickerOnPick} color="secondary">
-              Pick
+              Ok
             </Button>
           </DialogActions>
         </Dialog>
-        {/*   <p>ProgressStatus{this.state.showFileUploadProgress}</p> */}
+        {/* <p>DummyState{this.state.dummyState}</p> */}
       </React.Fragment>
     );
   }
 
+  changeDummyStateHandler = newState => {
+    // this.setState({ ...this.state, dummyState: newState });
+  };
+
+  reportResHandler = newResponse => {
+    console.log("slider new data recieved ");
+    this.setState({
+      response: { ...newResponse }
+    });
+  };
+
   getReportFromSession() {
     console.log("getReportFromSession() -> invoked");
     try {
-      let ReportWRD = JSON.parse(localStorage.getItem("ReportWRD"));
-      let ReportARD = JSON.parse(localStorage.getItem("ReportARD"));
-      let ReportBRD = JSON.parse(localStorage.getItem("ReportBRD"));
+      let ReportWRD = JSON.parse(sessionStorage.getItem("ReportWRD"));
+      let ReportARD = JSON.parse(sessionStorage.getItem("ReportARD"));
+      let ReportBRD = JSON.parse(sessionStorage.getItem("ReportBRD"));
       console.log("from machine ", ReportWRD);
       this.state.response.WithinRange.datasets = ReportWRD;
       this.state.response.AboveRange.datasets = ReportARD;
@@ -780,7 +818,7 @@ class Report extends Component {
         sessionStorage.getItem("ReportWithinRngY_MIN") === null
           ? this.state.response.WithinRange.y_min
           : sessionStorage.getItem("ReportWithinRngY_MIN");
-      this.setState({});
+      //  this.setState({});
     } catch (err) {
       //mark this error ?
       console.log("Error while accessing form machine", err);

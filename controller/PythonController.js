@@ -72,7 +72,9 @@ let PythonController = {
         // console.log(JSON.parse(result));
       } catch (e) {
         // Otherwise treat as a log entry
+
         console.log(e);
+        console.log("Error", result);
         return res.json({
           success: false,
           Error: [
@@ -217,7 +219,8 @@ let PythonController = {
         // console.log(JSON.parse(result));
       } catch (e) {
         // Otherwise treat as a log entry
-        console.log("Parsing Error:" + e);
+        //console.log(result);
+        console.log("[GetSlider]", e);
         //console.log(result.toString());
         // console.log(result);
         return res.json({
@@ -225,7 +228,7 @@ let PythonController = {
           Error: [
             {
               statusCode: 400,
-              details: "Data parsing failed due to wrong format"
+              details: config.ErrorMsg.ParsingErr
             }
           ]
         });
@@ -270,6 +273,15 @@ let PythonController = {
         // console.log(JSON.parse(result));
       } catch (e) {
         // Otherwise treat as a log entry
+        /*   return res.json({
+          success: false,
+          Error: [
+            {
+              statusCode: 400,
+              details:  config.ErrorMsg.ParsingErr
+            }
+          ]
+        }); */
         console.log(result);
       }
     });

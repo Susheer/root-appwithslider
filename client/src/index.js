@@ -6,10 +6,10 @@ import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import registerServiceWorker from "./registerServiceWorker";
 import { combineReducers, createStore } from "redux";
-import { Provider } from "react-redux";
+//import { Provider } from "react-redux";
 import productReducer from "./reducers/ProductReducer";
 import userReducer from "./reducers/user-reducer";
-import Insights from "../src/Insights/Insights-components";
+//import Insights from "../src/Insights/Insights-components";
 
 const allReducers = combineReducers({
   product: productReducer,
