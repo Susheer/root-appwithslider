@@ -282,7 +282,16 @@ let PythonController = {
             }
           ]
         }); */
-        console.log(result);
+        return res.json({
+          success: false,
+          Error: [
+            {
+              statusCode: 400,
+              details: config.ErrorMsg.PointError
+            }
+          ]
+        });
+        console.log("[SummaryReport] result in catch", result);
       }
     });
     processd.on("error", err => {
