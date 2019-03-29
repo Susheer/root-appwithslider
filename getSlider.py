@@ -8,8 +8,7 @@ import json
 import sys
 
 currentDT = datetime.now()
-cur_Dt = time.mktime(datetime.strptime(
-    currentDT.strftime("%d/%m/%Y "), "%d/%m/%Y ").timetuple())
+cur_Dt = time.mktime(datetime.strptime(currentDT.strftime("%d/%m/%Y "), "%d/%m/%Y ").timetuple())
 cur_Date = str(int(cur_Dt))+'000'
 
 
@@ -34,7 +33,8 @@ def Date_Picker(fromDate, toDate):
                 "Error": [{"statusCode": 404, "details": "Records Not Found"}]
             }
             Eobject = json.dumps(errorobj)
-            print(Eobject)
+            # print(Eobject)
+            exit()
             # print("====================================")
 
     except:
@@ -44,12 +44,13 @@ def Date_Picker(fromDate, toDate):
         }
         Eobject = json.dumps(errorobj)
         print(Eobject)
+        exit()
         # print(eval)
 
-    x_max = Dataframe['IQR_main'].max()/100
-    x_min = Dataframe['IQR_main'].min()/x_max-20
-    y_max = Dataframe['Row_Main'].max()/100
-    y_min = Dataframe['Row_Main'].min()/y_max-20
+    # x_max = Dataframe['IQR_main'].max()/100
+    # x_min = Dataframe['IQR_main'].min()/x_max-20
+    # y_max = Dataframe['Row_Main'].max()/100
+    # y_min = Dataframe['Row_Main'].min()/y_max-20
 
     jsonObject = {
         "success": "true",
@@ -77,23 +78,22 @@ def Date_Picker(fromDate, toDate):
         }
     }
     for row in range(Dataframe.__len__()):
+        if Dataframe.iloc[row]['Range'] ==Dataframe.iloc[row]['In_Range']:
         # if np.logical_and(Dataframe.iloc[row]['Range'] == 0, Dataframe.iloc[row]['Range_1'] == 0):
-        # if Dataframe.iloc[row]['Range_2'] >= 24:
-        if np.logical_and(Dataframe.iloc[row]['Range'] == 1, Dataframe.iloc[row]['Range_2'] == Dataframe.iloc[row]['Range_1']):
-
-            jsonObj = {
-                "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
-                "pointStyle": "circle",
-                "data": [{
-                    # "x": Dataframe.iloc[row]['IQR_main']/x_max,
-                    # "y": Dataframe.iloc[row]['Row_Main']/y_max,
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
-                    "r": 9
-                }],
-                "backgroundColor": "#008000"
-            }
-            jsonObject["WithinRange"]["datasets"].append(jsonObj)
+        #     if Dataframe.iloc[row]['Range_2'] > 20:
+                jsonObj = {
+                    "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
+                    "pointStyle": "circle",
+                    "data": [{
+                        # "x": Dataframe.iloc[row]['IQR_main']/x_max,
+                        # "y": Dataframe.iloc[row]['Row_Main']/y_max,
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9
+                    }],
+                    "backgroundColor": "#008000"
+                }
+                jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
         else:
             jsonObj = {

@@ -1,6 +1,7 @@
-import React, { Component, Fragment } from "react";
-import "rc-slider/assets/index.css";
-
+import React, { Component } from "react";
+//import "rc-slider/assets/index.css";
+import "./index.css";
+//import LensIcon from "@material-ui/icons/Label";
 import Slider from "rc-slider";
 import { SLIDER_VALUE_SESSION } from "../constants";
 import $ from "jquery";
@@ -89,12 +90,11 @@ class SlideCom extends Component {
       url: "/api/getrange?QueryId=" + value,
       success: data => {
         console.log("/api/getrange?QueryId=" + value);
-        if (data.success === "true") {
-          console.log("response from server ", data);
-          /*   this.state.response.AboveRange.datasets = data.AboveRange.datasets;
-          this.state.response.WithinRange.datasets = data.WithinRange.datasets;
-          this.state.response.BelowRange.datasets = data.BelowRange.datasets; */
 
+        if (data.success === "true") {
+          this.setState({ open: false });
+          //console.log("response from server ", data);
+          this.props.reportResHandler(data);
           try {
             console.log(" data.WithinRange.x_max", data.WithinRange.x_max);
             //Above Range X,Y (MIN , Max)
@@ -157,36 +157,35 @@ class SlideCom extends Component {
           }
 
           try {
-            localStorage.setItem(
+            sessionStorage.setItem(
               "ReportWRD",
               JSON.stringify(data.WithinRange.datasets)
             );
 
-            localStorage.setItem(
+            sessionStorage.setItem(
               "ReportARD",
               JSON.stringify(data.AboveRange.datasets)
             );
-            localStorage.setItem(
+            sessionStorage.setItem(
               "ReportBRD",
               JSON.stringify(data.BelowRange.datasets)
             );
           } catch (err) {
             console.log("Error in wrdt", err);
           }
-          console.log("Data fetched from server");
-          window.location.reload();
-          //this.setState({ sliderFlag: false });
+          console.log("[Slider]: ");
+          // window.location.reload();
+
           //console.log("excuted querry");
         } else {
-          //this.handleSnackBar(data.Error[0].details);
           console.log("Error" + data.Error[0].details);
           this.handleSnackBar(data.Error[0].details);
         }
       }
     }).done(({ data }) => {
-      // console.log(json);
       this.setState({ sliderFlag: false });
-      console.log("request completed");
+
+      // this.props.dummyState("vinya");
     });
   };
 
@@ -234,10 +233,10 @@ class SlideCom extends Component {
   };
 
   handleSnackBar = message => {
-    this.state.open = true;
+    // this.state.open = true;
 
     this.setState({
-      open: this.state.open,
+      open: this.state.open ? true : true,
       snakbarMessage: message
     });
   };

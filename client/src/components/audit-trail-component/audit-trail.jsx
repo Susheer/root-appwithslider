@@ -300,9 +300,9 @@ class AuditTrail extends Component {
     // SecondWithinRngX_MIN,SecondWithinRngY_MAX,SecondWithinRngY_MIN
     //SecondBelowRngX_MAX,SecondBelowRngY_MAX,SecondBelowRngY_MAX,SecondBelowRngY_MIN
     try {
-      let AuditTrailWRD = JSON.parse(localStorage.getItem("AuditTrailWRD"));
-      let AuditTrailARD = JSON.parse(localStorage.getItem("AuditTrailARD"));
-      let AuditTrailBRD = JSON.parse(localStorage.getItem("AuditTrailBRD"));
+      let AuditTrailWRD = JSON.parse(sessionStorage.getItem("AuditTrailWRD"));
+      let AuditTrailARD = JSON.parse(sessionStorage.getItem("AuditTrailARD"));
+      let AuditTrailBRD = JSON.parse(sessionStorage.getItem("AuditTrailBRD"));
 
       this.state.response.WithinRange.datasets = AuditTrailWRD;
       this.state.response.AboveRange.datasets = AuditTrailARD;
@@ -386,9 +386,9 @@ class AuditTrail extends Component {
     // if success===false then just show then message to the page itself
     // dont call loadDataFrom machine
 
-    localStorage.setItem("AuditTrailWRD", null);
-    localStorage.setItem("AuditTrailARD", null);
-    localStorage.setItem("AuditTrailBRD", null);
+    sessionStorage.setItem("AuditTrailWRD", null);
+    sessionStorage.setItem("AuditTrailARD", null);
+    sessionStorage.setItem("AuditTrailBRD", null);
     console.log("fetching data from server");
     $.ajax({
       type: "POST",
@@ -488,15 +488,15 @@ class AuditTrail extends Component {
             console.error("Audit-trail: error while saveing to ls");
           }
           //  this.setState({ response: data });
-          localStorage.setItem(
+          sessionStorage.setItem(
             "AuditTrailWRD",
             JSON.stringify(data.WithinRange.datasets)
           );
-          localStorage.setItem(
+          sessionStorage.setItem(
             "AuditTrailARD",
             JSON.stringify(data.AboveRange.datasets)
           );
-          localStorage.setItem(
+          sessionStorage.setItem(
             "AuditTrailBRD",
             JSON.stringify(data.BelowRange.datasets)
           );

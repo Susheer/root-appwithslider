@@ -7,9 +7,9 @@ import SnackbarNotification from "../Util-Component/SnackbarNotification";
 
 import { Redirect } from "react-router-dom";
 import * as zoom from "chartjs-plugin-zoom";
-import {} from "../constants";
-import { min } from "date-fns";
-import { func } from "prop-types";
+//import {} from "../constants";
+//import { min } from "date-fns";
+//import { func } from "prop-types";
 
 class Chartjs_2 extends Component {
   state = {
@@ -228,8 +228,7 @@ class Chartjs_2 extends Component {
   };
   componentDidMount() {
     // console.log(this.chartReference);
-
-    console.log("Chart Data", this.state.response);
+    console.log("[Chart]: Chart Data", this.state.response);
   }
 
   static defaultProps = {
@@ -240,7 +239,7 @@ class Chartjs_2 extends Component {
   };
 
   render() {
-    const { AboveRange, WithinRange, BelowRange } = this.state.response;
+    const { AboveRange, WithinRange, BelowRange } = this.props.response;
 
     console.log("AboveRange in render ", AboveRange);
     console.log("BelowRange range in render", BelowRange);
@@ -353,7 +352,6 @@ class Chartjs_2 extends Component {
             </div>
             <div>
               <Bubble
-                height={165}
                 ref={reference => (this.chartReference = reference)}
                 type="bubble"
                 data={WithinRange}
@@ -405,7 +403,6 @@ class Chartjs_2 extends Component {
             <div>
               <Bubble
                 type="bubble"
-                height={165}
                 data={AboveRange}
                 options={{
                   responsive: true,
