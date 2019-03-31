@@ -6,17 +6,16 @@ import Button from "@material-ui/core/Button";
 import Chart from "./Chart";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import SlideCom from "./Slider-rc";
-import moment from "moment";
-import { inspect } from "util"; // or directly
+
 import {
   From_DATE_SESSION,
   TO_DATE_SESSION,
   SLIDER_VALUE_SESSION
 } from "../constants";
-
+//import ReplicateResponse from "../Util-Component/BlankResponse";
 import SnackbarNotification from "../Util-Component/SnackbarNotification";
 import "./report-style.css";
-import Draggable from "react-draggable";
+
 import Paper from "@material-ui/core/Paper";
 import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -31,7 +30,6 @@ import {
   Badge,
   Row,
   Col,
-  Jumbotron,
   Button as BtsrpButton,
   ButtonToolbar,
   ButtonGroup
@@ -43,12 +41,16 @@ import { getOverlappingDaysInIntervals } from "date-fns";
 
 class Report extends Component {
   state = {
+    // 443
     dummyState: "raju",
+    LProgressStatus: false,
+    blockScreen: false,
     isReportBusy: false,
     count: 25,
     fileBeingProcessedSnackbaropen: false,
     fileBeingProcessedSnackbarMessage: "File is being processed. Please wait..",
     loderCircle: "",
+    sliderPointer: 24, // default 15 days
     vertical: "top",
     horizontal: "center",
     isFileUploaded: false,
@@ -88,13 +90,13 @@ class Report extends Component {
     // The first commit of Material-UI
 
     datePickerSelectedDateFrom:
-      sessionStorage.getItem(From_DATE_SESSION) === null
+      localStorage.getItem(From_DATE_SESSION) === null
         ? new Date()
-        : new Date(sessionStorage.getItem(From_DATE_SESSION)),
+        : new Date(localStorage.getItem(From_DATE_SESSION)),
     datePickerSelectedDateTo:
-      sessionStorage.getItem(TO_DATE_SESSION) === null
+      localStorage.getItem(TO_DATE_SESSION) === null
         ? new Date()
-        : new Date(sessionStorage.getItem(TO_DATE_SESSION)).toLocaleDateString()
+        : new Date(localStorage.getItem(TO_DATE_SESSION)).toLocaleDateString()
   };
 
   handleFileBeingProcessedSnackbarClick = () => {
@@ -115,18 +117,13 @@ class Report extends Component {
   };
 
   handleDatePickerOnPick = () => {
-    /*  console.log(
-      "picking date ok",
-      this.state.datePickerSelectedDateFrom + " To",
-      this.state.datePickerSelectedDateTo
-    ); */
     this.setState({ datePickerOpen: false });
     this.getFromRange();
   };
 
   shouldComponentUpdate(nextProps, nextState) {
     console.log("---------------ShdComUpdt--------------------------");
-    console.log("NextProps-", nextProps, "nextState-", nextState);
+    console.log("nextState-", nextState);
     console.log("this.state", this.state);
 
     console.log("this.state===nextState->", this.state === nextState);
@@ -141,7 +138,7 @@ class Report extends Component {
       this.state.datePickerOpen = true;
       return false;
     }
-    let message = this.setState({ datePickerOpen: false });
+    this.setState({ datePickerOpen: false });
     /*   message =
       "From:" +
       this.state.datePickerSelectedDateFrom +
@@ -150,13 +147,13 @@ class Report extends Component {
   };
 
   handleDatePickerDateChangeFrom = date => {
-    sessionStorage.setItem(From_DATE_SESSION, date);
+    localStorage.setItem(From_DATE_SESSION, date);
     // alert(sessionStorage.getItem(From_DATE_SESSION));
 
     this.setState({ datePickerSelectedDateFrom: date });
   };
   handleDatePickerDateChangeTo = date => {
-    sessionStorage.setItem(TO_DATE_SESSION, date);
+    localStorage.setItem(TO_DATE_SESSION, date);
 
     this.setState({ datePickerSelectedDateTo: date });
   };
@@ -168,40 +165,47 @@ class Report extends Component {
     // console.log("Class Report-> handleSnackBar() invoked ", this.state.open);
   };
   componentWillMount() {
-    //this.props.history.goForward();
-    window.history.pushState(null, null, window.location.href);
-    window.onpopstate = function(event) {
-      window.history.go(1);
-    };
-    /*  this._isMounted = true;
-    console.log("lof bux`xtton");
-    window.onpopstate = () => {
-      if (this._isMounted) {
-        const { hash } = window.location;
-        // alert("IndexOf " + hash.indexOf("Report"));
-        if (hash.indexOf("Report") > -1 && this.state.value !== 0)
-          this.setState({ value: 0 });
-        if (hash.indexOf("users") > -1 && this.state.value !== 1)
-          this.setState({ value: 1 });
+    //  this.getReportFromSession();
+    // check if slider value in session
+    // if null  , tassign default  slider state value e.g 24
+    //if not null , assign session value to slider state , e.g sliderPinter
 
-        if (hash.indexOf("data") > -1 && this.state.value !== 2)
-          this.setState({ value: 2 });
-      }
-    }; */
+    this.state.sliderPointer =
+      sessionStorage.getItem(SLIDER_VALUE_SESSION) === null
+        ? this.state.sliderPointer
+        : parseInt(sessionStorage.getItem(SLIDER_VALUE_SESSION));
     console.log("report wil mount excuted");
-    this.getReportFromSession();
   }
 
   componentDidMount() {
-    // this.getDidChartData();
+    // on being report loded
+    console.log("[Report] DidMount()-invoked");
+    this.getDataIfReportComponentReloaded();
   }
+  disableBlockScreen = () => {
+    this.setState({ blockScreen: false });
+  };
+
+  enableBlockScreen = () => {
+    let flag = this.state.blockScreen;
+    if (!flag) {
+      this.setState({ blockScreen: true });
+    }
+  };
 
   addFile = event => {
+    console.log("[AddFile] eventInvoked");
     //  event.preventDefault();
     var data = new FormData();
 
     data.append("file", event.target.files[0]);
+    // slider value as 15 days for first file upload
+    // so set this value as 24 in browser
+    // following method will alter the value of slider point dynamically
+    // therefore slider pointer will move to 24 e.g 15 days position withought page reloaded
+    // this.setState({ sliderPointer: 24 });
     //FileAjexCall
+    this.enableBlockScreen();
     $.ajax({
       type: "POST",
       url: "/api/report",
@@ -231,7 +235,8 @@ class Report extends Component {
               if (percentComplete === 100) {
                 this.setState({
                   showFileUploadProgress: "none",
-                  fUploadPercentege: 0
+                  fUploadPercentege: 0,
+                  sliderPointer: 24
                 });
                 this.handleFileBeingProcessedSnackbarClick();
                 // this.handleSnackBar("File is uploaded .");
@@ -256,115 +261,84 @@ class Report extends Component {
         return jqXHR;
       }.bind(this),
       success: function(data) {
-        /* this.setState({
-          fileBeingProcessedSnackbaropen: false
-        }); */
         this.setState({ fileBeingProcessedSnackbaropen: false });
         if (data.success === "true") {
-          // slider value as 15 days for first file upload
-          // so set this value as 24 in browser
+          // following line will save slider point value to startSession
+          // so that if page reloaded, then willMount will take slider value from session and set it to
+          // repport state ,
+          //so that didMount will make call for to update the chart with same data using this slider value
           sessionStorage.setItem(SLIDER_VALUE_SESSION, 24);
           console.log("inside success:true");
-          /*  this.state.response.AboveRange.datasets = data.AboveRange.datasets;
-          this.state.response.WithinRange.datasets = data.WithinRange.datasets;
-          this.state.response.BelowRange.datasets = data.BelowRange.datasets;  */
-
-          try {
-            console.log(" data.WithinRange.x_max", data.WithinRange.x_max);
-            //Above Range X,Y (MIN , Max)
-            sessionStorage.setItem(
-              "ReportAbovX_MAX",
-              Math.ceil(data.AboveRange.x_max)
-            );
-            sessionStorage.setItem(
-              "ReportAbovX_MIN",
-              Math.ceil(data.AboveRange.x_min)
-            );
-            sessionStorage.setItem(
-              "ReportAbovY_MAX",
-              Math.ceil(data.AboveRange.y_max)
-            );
-            sessionStorage.setItem(
-              "ReportAbovY_MIN",
-              Math.ceil(data.AboveRange.x_min)
-            );
-            //WithinRange Range X,Y (MIN , Max)
-
-            sessionStorage.setItem(
-              "ReportWithinRngX_MAX",
-
-              Math.ceil(data.WithinRange.x_max)
-            );
-            sessionStorage.setItem(
-              "ReportWithinRngX_MIN",
-              Math.ceil(data.WithinRange.x_min)
-            );
-            sessionStorage.setItem(
-              "ReportWithinRngY_MAX",
-              Math.ceil(data.WithinRange.y_max)
-            );
-            sessionStorage.setItem(
-              "ReportWithinRngY_MIN",
-              Math.ceil(data.WithinRange.y_min)
-            );
-
-            //BelowRange Range X,Y (MIN , Max)
-            sessionStorage.setItem(
-              "ReportBelowRngX_MAX",
-              Math.ceil(data.BelowRange.x_max)
-            );
-            sessionStorage.setItem(
-              "ReportBelowRngX_MIN",
-              Math.ceil(data.BelowRange.x_min)
-            );
-            sessionStorage.setItem(
-              "ReportBelowRngY_MAX",
-              Math.ceil(data.BelowRange.y_max)
-            );
-            sessionStorage.setItem(
-              "ReportBelowRngY_MIN",
-              Math.ceil(data.BelowRange.y_min)
-            );
-            // B
-          } catch (err) {
-            console.log("error while saveing to ls");
-          }
-
-          try {
-            sessionStorage.setItem(
-              "ReportWRD",
-              JSON.stringify(data.WithinRange.datasets)
-            );
-
-            sessionStorage.setItem(
-              "ReportARD",
-              JSON.stringify(data.AboveRange.datasets)
-            );
-            sessionStorage.setItem(
-              "ReportBRD",
-              JSON.stringify(data.BelowRange.datasets)
-            );
-          } catch (err) {
-            console.log("Error in wrdt", err);
-          }
-
-          this.setGreeting();
-          setTimeout("window.location.reload();", 2000);
+          // follwing method will update chart with  new data if any
+          this.reportResHandler(data);
         } else {
-          try {
+          // if response code contains 404 e.g value is not there
+          let response = {
+            WithinRange: {
+              x_max: 120,
+              x_min: 0,
+              y_max: 120,
+              y_min: 0,
+              datasets: []
+            },
+            BelowRange: {
+              x_max: 120,
+              x_min: 0,
+              y_max: 120,
+              y_min: 0,
+              datasets: []
+            },
+            AboveRange: {
+              x_max: 120,
+              x_min: 0,
+              y_max: 120,
+              y_min: 0,
+              datasets: []
+            }
+          };
+
+          if (data.Error[0].statusCode === 404) {
+            // following method will make slider pointer at default in case of data not found
+            // from server
+            // when file file uploded
+            //  this.sliderPointerHandler(24);
+
+            // pass dummay response so that it could clear last data from chart
+            // follwoing method will assign chart a dummay  blank response to make chart clean
+            // in case data is not found from server
+            this.reportResHandler(response);
+
+            // following session statement will store value for 15 days in machine
+            // so if data not found session slider point will updated
+            // and if user reloads page it  didMount will take this value and assigns  back to slierPoint state
+            // hence again pointer will be pointing to same position where  it was before page re-load
+
+            sessionStorage.setItem(SLIDER_VALUE_SESSION, 24);
+
+            // following line will snackbar on screen to update the user
+            // that data is not found
+
             this.handleSnackBar(data.Error[0].details);
-          } catch (err) {
-            console.log("Error in ");
+          } else {
+            // if statusCode not 404 e.g somthing went wrong in processig request
+            //  server side
+
+            this.handleSnackBar(data.Error[0].details);
           }
+          // this will print on console failed report
+          console.log("dummyResponse:", response);
         }
+        //this.setGreeting();
+        // setTimeout("window.location.reload();", 2000);
       }.bind(this),
       error: ({ err }) => {
         this.handleSnackBar("Server denied the request");
       }
     }).done(({ json }) => {
       // console.log(json);
-      sessionStorage.setItem(SLIDER_VALUE_SESSION, 24);
+      //  sessionStorage.setItem(SLIDER_VALUE_SESSION, 24);
       // window.location.reload();
+      this.disableBlockScreen();
     });
   };
 
@@ -377,8 +351,9 @@ class Report extends Component {
   };
 
   getFromRange = () => {
-    //  event.preventDefault();
-    // var data = new FormData();
+    // call top progress bar
+    this.enableLinearProgress();
+
     let fDate = new Date(this.state.datePickerSelectedDateFrom);
     let toDate = new Date(this.state.datePickerSelectedDateTo);
     // alert("from" + fDate.getTime() + " To: " + toDate.getTime());
@@ -396,15 +371,15 @@ class Report extends Component {
           this.state.response.WithinRange = data.WithinRange;
           this.state.response.BelowRange = data.BelowRange;
           try {
-            sessionStorage.setItem(
+            localStorage.setItem(
               "ReportWRD",
               JSON.stringify(data.WithinRange.datasets)
             );
-            sessionStorage.setItem(
+            localStorage.setItem(
               "ReportARD",
               JSON.stringify(data.AboveRange.datasets)
             );
-            sessionStorage.setItem(
+            localStorage.setItem(
               "ReportBRD",
               JSON.stringify(data.BelowRange.datasets)
             );
@@ -423,9 +398,67 @@ class Report extends Component {
           this.handleSnackBar(data.Error[0].details);
         }
       }
-    }).done(function(data) {
-      // console.log(json);
+    }).done(
+      function(data) {
+        // console.log(json);
+        // disable TopProgressBar now
+        this.disableLinearProgress();
+      }.bind(this)
+    );
+  };
+
+  getDataIfReportComponentReloaded() {
+    // show loading on top of screen
+    this.enableLinearProgress();
+    console.log("[Report] getDataIfReportComponentReloaded()-invoked");
+    $.ajax({
+      type: "POST",
+      url: "/api/getrange?QueryId=" + this.state.sliderPointer,
+      success: data => {
+        console.log(
+          "[Report] getDataIfRprtCompRlded()-> /api/getrange?QueryId=" +
+            this.state.sliderPointer
+        );
+
+        if (data.success === "true") {
+          this.reportResHandler(data);
+          console.log("[getDataIfReprtReloadeCom]: compleated ");
+        } else {
+          console.log(
+            "[Report]getDataIfRprtCompRlded()->" + data.Error[0].details
+          );
+          this.handleSnackBar(data.Error[0].details);
+        }
+      }
+    }).done(({ data }) => {
+      console.log("[getDataIfReprtReloadeCom]: ajex call completed ");
+      // disable  top progress
+      this.disableLinearProgress();
     });
+  }
+  disableLinearProgress = () => {
+    let flag = this.state.LProgressStatus;
+    if (flag) {
+      this.setState({ LProgressStatus: false, blockScreen: false });
+    }
+  };
+
+  toggleLinearProgress = () => {
+    let flag = this.state.LProgressStatus;
+
+    this.setState({ LProgressStatus: !flag });
+  };
+
+  enableLinearProgress = () => {
+    let flag = this.state.LProgressStatus;
+    if (!flag) {
+      this.setState({ LProgressStatus: true, blockScreen: true });
+    }
+  };
+
+  toggleScreenBlock = () => {
+    let flag = this.state.blockScreen;
+    this.setState({ blockScreen: !flag });
   };
 
   render() {
@@ -438,6 +471,18 @@ class Report extends Component {
       fileBeingProcessedSnackbarMessage,
       loderCircle
     } = this.state;
+
+    let LinearProgressStyle = {
+      marginTop: "0px",
+      marginLeft: "0px",
+      marginRight: "0px",
+      padding: "0px",
+      display: "none"
+    };
+
+    if (this.state.LProgressStatus) {
+      LinearProgressStyle.display = "block";
+    }
 
     return (
       <React.Fragment>
@@ -473,10 +518,23 @@ class Report extends Component {
             </div>
           }
         />
+
         <div
           style={{ background: "" }}
           className="container-fluid Jumbotron-report"
         >
+          <Row style={{ border: "1px solid none", height: "15px" }}>
+            <Col
+              style={{
+                border: "1px solid none",
+                paddingLeft: "0px",
+                paddingRight: "0px"
+              }}
+            >
+              <LinearProgress style={LinearProgressStyle} />
+            </Col>
+          </Row>
+
           <Row style={{ paddingTop: "15px" }}>
             <Col xl={10} style={{ border: "none" }}>
               <Link to="/">
@@ -576,6 +634,9 @@ class Report extends Component {
                     onChange={this.addFile}
                     name="name"
                     id="fileUpload"
+                    onClick={e => {
+                      e.target.value = null;
+                    }}
                     style={{ display: "none" }}
                   />
                 </label>
@@ -664,6 +725,10 @@ class Report extends Component {
                 <SlideCom
                   dummyState={this.changeDummyStateHandler}
                   reportResHandler={this.reportResHandler}
+                  sliderPointerHandler={this.sliderPointerHandler}
+                  sliderPointerValue={this.state.sliderPointer}
+                  enableLinearProgress={this.enableLinearProgress}
+                  disableLinearProgress={this.disableLinearProgress}
                 />
               </Col>
             </Col>
@@ -693,6 +758,22 @@ class Report extends Component {
           </Row>
         </div>
         {/* date picker module start*/}
+
+        <Dialog
+          open={this.state.blockScreen}
+          onClose={this.disableBlockScreen}
+          labelledby="draggable-dialog-title"
+          style={{
+            backgroundColor: "transparent",
+            opacity: "0",
+            cursor: "not-allowed"
+          }}
+
+          /*  PaperComponent={PaperComponent} */
+        >
+          <br />
+        </Dialog>
+
         <Dialog
           open={this.state.datePickerOpen}
           onClose={this.handleDatePickerClickClose}
@@ -733,6 +814,12 @@ class Report extends Component {
           </DialogActions>
         </Dialog>
         {/* <p>DummyState{this.state.dummyState}</p> */}
+        {/* <button
+          onClick={this.toggleLinearProgress}
+          style={{ cursor: "pointer" }}
+        >
+          ToggleLinearProgress
+        </button> */}
       </React.Fragment>
     );
   }
@@ -741,8 +828,12 @@ class Report extends Component {
     // this.setState({ ...this.state, dummyState: newState });
   };
 
+  sliderPointerHandler = newPointerValue => {
+    this.setState({ sliderPointer: newPointerValue });
+  };
+
   reportResHandler = newResponse => {
-    console.log("slider new data recieved ");
+    console.log("[slider new data recieved ]");
     this.setState({
       response: { ...newResponse }
     });
@@ -751,14 +842,15 @@ class Report extends Component {
   getReportFromSession() {
     console.log("getReportFromSession() -> invoked");
     try {
-      let ReportWRD = JSON.parse(sessionStorage.getItem("ReportWRD"));
-      let ReportARD = JSON.parse(sessionStorage.getItem("ReportARD"));
-      let ReportBRD = JSON.parse(sessionStorage.getItem("ReportBRD"));
+      let ReportWRD = JSON.parse(localStorage.getItem("ReportWRD"));
+      let ReportARD = JSON.parse(localStorage.getItem("ReportARD"));
+      let ReportBRD = JSON.parse(localStorage.getItem("ReportBRD"));
       console.log("from machine ", ReportWRD);
       this.state.response.WithinRange.datasets = ReportWRD;
       this.state.response.AboveRange.datasets = ReportARD;
-
       this.state.response.BelowRange.datasets = ReportBRD;
+
+      console.log("DataSet", this.state.response.WithinRange.datasets);
       //ReportWithinRngY_MIN,
       // "ReportAbovY_MIN",
       //"ReportBelowRngX_MAX",

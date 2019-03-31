@@ -148,6 +148,10 @@ RangeDataFrame['NaN_Values'] = pd.Series(Zero_Array)
 RangeDataFrame['In_Range'] = RangeDataFrame['In_Range'] - \
     RangeDataFrame['NaN_Values']
 RangeDataFrame = RangeDataFrame.drop(columns='NaN_Values')
+
+
+RangeDataFrame['Limit'] = np.where((RangeDataFrame['Range'] == RangeDataFrame['In_Range']),  'In_Range', 'Above_Range')
+
 # print(RangeDataFrame)
 RangeDataFrame['Index'] = pd.Series(MainDataF['SampleNumber'])
 RangeDataFrame['Date'] = pd.Series(MainDataF['DateBunkered'])
@@ -233,6 +237,44 @@ except:
     exit()
 
 
+
+In_rad=0
+A_red=0
+In_RangeArray = Dataframe.loc[Dataframe['Limit'] == "In_Range"]
+In_count = In_RangeArray.shape
+Above_RangeArray = Dataframe.loc[Dataframe['Limit'] == "Above_Range"]
+Abov_count = Above_RangeArray.shape
+
+
+if In_count[0] <= 100:
+    In_rad = 9
+elif In_count[0] < 500:
+    In_rad = 8
+elif In_count[0] < 1000:
+    In_rad = 7
+elif In_count[0] < 3000:
+    In_rad = 6
+elif In_count[0] < 5000:
+    In_rad = 5
+elif In_count[0] < 7000:
+    In_rad = 4
+
+if Abov_count[0] < 100:
+    A_red = 9
+elif Abov_count[0] < 500:
+    A_red = 8
+elif Abov_count[0] < 1000:
+    A_red = 7
+elif Abov_count[0] < 3000:
+    A_red = 6
+elif Abov_count[0] < 5000:
+    A_red = 5
+elif Abov_count[0] < 7000:
+    A_red = 4
+
+
+
+
 for row in range(Dataframe.__len__()):
     if Dataframe.iloc[row]['Range'] == Dataframe.iloc[row]['In_Range']:
         # if np.logical_and(Dataframe.iloc[row]['Range'] == 0, Dataframe.iloc[row]['Range_1'] == 0):
@@ -245,7 +287,7 @@ for row in range(Dataframe.__len__()):
                 # "y": Dataframe.iloc[row]['Row_Main']/y_max,
                 "x": random.randint(1, 100),
                 "y": random.randint(1, 100),
-                "r": 9
+                "r": In_rad
             }],
             "backgroundColor": "#008000"
         }
@@ -260,7 +302,7 @@ for row in range(Dataframe.__len__()):
                 # "y": Dataframe.iloc[row]['Row_Main']/y_max,
                 "x": random.randint(1, 100),
                 "y": random.randint(1, 100),
-                "r": 9
+                "r": A_red
             }],
             "backgroundColor": "#FFA500"
         }

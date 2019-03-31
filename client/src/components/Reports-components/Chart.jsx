@@ -241,9 +241,9 @@ class Chartjs_2 extends Component {
   render() {
     const { AboveRange, WithinRange, BelowRange } = this.props.response;
 
-    console.log("AboveRange in render ", AboveRange);
-    console.log("BelowRange range in render", BelowRange);
-    console.log("WithinRange in render", WithinRange);
+    console.warn("AboveRange in render ", AboveRange);
+    console.warn("BelowRange range in render", BelowRange);
+    console.warn("WithinRange in render", WithinRange);
 
     return (
       <React.Fragment>

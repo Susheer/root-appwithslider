@@ -85,6 +85,7 @@ class SlideCom extends Component {
       // return;
     }
     //this.handleSnackBar("");
+    this.props.enableLinearProgress();
     $.ajax({
       type: "POST",
       url: "/api/getrange?QueryId=" + value,
@@ -93,130 +94,106 @@ class SlideCom extends Component {
 
         if (data.success === "true") {
           this.setState({ open: false });
-          //console.log("response from server ", data);
           this.props.reportResHandler(data);
-          try {
-            console.log(" data.WithinRange.x_max", data.WithinRange.x_max);
-            //Above Range X,Y (MIN , Max)
-            sessionStorage.setItem(
-              "ReportAbovX_MAX",
-              Math.ceil(data.AboveRange.x_max)
-            );
-            sessionStorage.setItem(
-              "ReportAbovX_MIN",
-              Math.ceil(data.AboveRange.x_min)
-            );
-            sessionStorage.setItem(
-              "ReportAbovY_MAX",
-              Math.ceil(data.AboveRange.y_max)
-            );
-            sessionStorage.setItem(
-              "ReportAbovY_MIN",
-              Math.ceil(data.AboveRange.x_min)
-            );
-            //WithinRange Range X,Y (MIN , Max)
-
-            sessionStorage.setItem(
-              "ReportWithinRngX_MAX",
-
-              Math.ceil(data.WithinRange.x_max)
-            );
-            sessionStorage.setItem(
-              "ReportWithinRngX_MIN",
-              Math.ceil(data.WithinRange.x_min)
-            );
-            sessionStorage.setItem(
-              "ReportWithinRngY_MAX",
-              Math.ceil(data.WithinRange.y_max)
-            );
-            sessionStorage.setItem(
-              "ReportWithinRngY_MIN",
-              Math.ceil(data.WithinRange.y_min)
-            );
-
-            //BelowRange Range X,Y (MIN , Max)
-            sessionStorage.setItem(
-              "ReportBelowRngX_MAX",
-              Math.ceil(data.BelowRange.x_max)
-            );
-            sessionStorage.setItem(
-              "ReportBelowRngX_MIN",
-              Math.ceil(data.BelowRange.x_min)
-            );
-            sessionStorage.setItem(
-              "ReportBelowRngY_MAX",
-              Math.ceil(data.BelowRange.y_max)
-            );
-            sessionStorage.setItem(
-              "ReportBelowRngY_MIN",
-              Math.ceil(data.BelowRange.y_min)
-            );
-            // B
-          } catch (err) {
-            console.log("error while saveing to ls");
-          }
-
-          try {
-            sessionStorage.setItem(
-              "ReportWRD",
-              JSON.stringify(data.WithinRange.datasets)
-            );
-
-            sessionStorage.setItem(
-              "ReportARD",
-              JSON.stringify(data.AboveRange.datasets)
-            );
-            sessionStorage.setItem(
-              "ReportBRD",
-              JSON.stringify(data.BelowRange.datasets)
-            );
-          } catch (err) {
-            console.log("Error in wrdt", err);
-          }
-          console.log("[Slider]: ");
-          // window.location.reload();
-
-          //console.log("excuted querry");
         } else {
-          console.log("Error" + data.Error[0].details);
-          this.handleSnackBar(data.Error[0].details);
+          // if response code contains 404 e.g value is not there
+          let response = {
+            WithinRange: {
+              x_max: 120,
+              x_min: 0,
+              y_max: 120,
+              y_min: 0,
+              datasets: []
+            },
+            BelowRange: {
+              x_max: 120,
+              x_min: 0,
+              y_max: 120,
+              y_min: 0,
+              datasets: []
+            },
+            AboveRange: {
+              x_max: 120,
+              x_min: 0,
+              y_max: 120,
+              y_min: 0,
+              datasets: []
+            }
+          };
+
+          if (data.Error[0].statusCode === 404) {
+            // following method will make slider pointer at default in case of data not found
+            // from server
+            // when file file uploded
+            this.props.sliderPointerHandler(value);
+
+            // pass dummay response so that it could clear last data from chart
+            // follwoing method will assign chart a dummay  blank response to make chart clean
+            // in case data is not found from server
+            this.props.reportResHandler(response);
+
+            // following session statement will store value for 15 days in machine
+            // so if data not found session slider point will updated
+            // and if user reloads page it  didMount will take this value and assigns  back to slierPoint state
+            // hence again pointer will be pointing to same position where  it was before page re-load
+
+            sessionStorage.setItem(SLIDER_VALUE_SESSION, value);
+
+            // following line will snackbar on screen to update the user
+            // that data is not found
+
+            this.handleSnackBar(data.Error[0].details);
+          } else {
+            // if statusCode not 404 e.g somthing went wrong in processig request
+            //  server side
+
+            this.handleSnackBar(data.Error[0].details);
+          }
+          // this will print on console failed report
+          console.log("[Slider] dummyResponse:", response);
         }
       }
     }).done(({ data }) => {
       this.setState({ sliderFlag: false });
-
+      this.props.disableLinearProgress();
       // this.props.dummyState("vinya");
     });
   };
 
   onAfterCh(value) {
     // value = this.state.onChangeSliderValue;
-
+    console.log("after chage");
     console.log("onAfterChangeEvent", this.state.onChangeSliderValue);
     if (this.state.onChangeSliderValue === 0) {
       console.log("Forver");
-
+      this.props.sliderPointerHandler(0); // change state in report component
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 0);
+
       this.handleSliderQuery(0);
     } else if (this.state.onChangeSliderValue === 6) {
       console.log("Year");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 6);
+      this.props.sliderPointerHandler(6); // change state in report component
       this.handleSliderQuery(6);
     } else if (this.state.onChangeSliderValue === 12) {
       console.log("3 Month");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 12);
+      this.props.sliderPointerHandler(12); // change state in report component
       this.handleSliderQuery(12);
     } else if (this.state.onChangeSliderValue === 18) {
       console.log("1 Month");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 18);
+      this.props.sliderPointerHandler(18); // change state in report component
       this.handleSliderQuery(18);
     } else if (this.state.onChangeSliderValue === 24) {
       console.log("15 days");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 24);
+      this.props.sliderPointerHandler(24); // change state in report component
       this.handleSliderQuery(24);
     } else if (this.state.onChangeSliderValue === 30) {
       console.log("week");
       sessionStorage.setItem(SLIDER_VALUE_SESSION, 30);
+      this.props.sliderPointerHandler(30); // change state in report component
       this.handleSliderQuery(30);
     } else {
       console.log("not found");
@@ -229,6 +206,7 @@ class SlideCom extends Component {
   log = val => {
     // this.setState({ onChangeSliderValue: val });
     this.state.onChangeSliderValue = val;
+    this.props.sliderPointerHandler(val);
     console.log("onChangeEvent", this.state.onChangeSliderValue);
   };
 
@@ -242,6 +220,8 @@ class SlideCom extends Component {
   };
 
   render() {
+    let pointerValue = this.props.sliderPointerValue;
+    console.log("[SliderRender] sliderPointerValue", pointerValue);
     return (
       <React.Fragment>
         <div style={style}>
@@ -252,14 +232,17 @@ class SlideCom extends Component {
             max={30}
             marks={marks}
             step={6}
+            value={pointerValue}
             onChange={this.log}
             onAfterChange={this.onAfterCh.bind(this)}
             onBeforeChange={this.onBeforeCh.bind(this)}
             defaultValue={
+              pointerValue
+            } /* {
               sessionStorage.getItem(SLIDER_VALUE_SESSION) === null
                 ? 0
                 : parseInt(sessionStorage.getItem(SLIDER_VALUE_SESSION))
-            }
+            } */
             activeDotStyle={{ border: "3px solid black ", display: "none" }}
             disabled={this.state.sliderFlag}
           />

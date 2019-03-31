@@ -95,12 +95,12 @@ jsonObject = {
 if np.logical_and(DataIndex != 'cstAt40', DataIndex != 'FlashPoint'):
     if Data < Quantile25.loc[DataIndex][0]:
         jsonObj = {
-            "label": "{} {}".format("Observation", str(Data)),  # str(Data),
+            "label": "{},{} = {}".format("Observation", DataIndex, str(Data)),
             "pointStyle": "circle",
 
             "data": [{
                 "x": 25,
-                "y": 70,
+                "y": 90,
                 "r": 9,
                 "keepTooltipOpen": 'true'
             }],
@@ -112,12 +112,13 @@ if np.logical_and(DataIndex != 'cstAt40', DataIndex != 'FlashPoint'):
     elif Data > Quantile25.loc[DataIndex][0]:
         jsonObj = {
             # str(Data),
-            "label": "{} {}\n\n\n{}\n{} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "is less than", Quantile25.loc[DataIndex][0]),
+            # str(Data),
+            "label": "{},{} = {},,,{},{} {} {},".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be less than", Quantile25.loc[DataIndex][0]),
             "pointStyle": "circle",
 
             "data": [{
-                "x": 25,
-                "y": 70,
+                "x": 5,
+                "y": 95,
                 "r": 9,
                 "keepTooltipOpen": 'true'
             }],
@@ -143,11 +144,12 @@ else:
     if np.logical_and(DataIndex == 'cstAt40', cst40 == 1):
         if Data > Quantile25.loc['cstAt40Max'][0]:
             jsonObj = {
-                "label": "{} {}\n\n\n{}\n{} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "is less than", Quantile25.loc['cstAt40Max'][0]),
+                # str(Data),
+                "label": "{},{} = {},,,{},{} {} {},".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be less than", Quantile25.loc['cstAt40Max'][0]),
                 "pointStyle": "circle",
                 "data": [{
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
+                    "x": 5,
+                    "y": 95,
                     "r": 9,
                     "keepTooltipOpen": 'true'
                 }],
@@ -157,11 +159,11 @@ else:
 
         elif np.logical_and(Data > Quantile25.loc['cstAt40Min'][0], Data < Quantile25.loc['cstAt40Max'][0]):
             jsonObj = {
-                "label": "{} {}".format("Observation", str(Data)),
+                "label": "{},{} = {}".format("Observation", DataIndex, str(Data)),
                 "pointStyle": "circle",
                 "data": [{
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
+                    "x": 5,
+                    "y": 95,
                     "r": 9,
                     "keepTooltipOpen": 'true'
                 }],
@@ -171,11 +173,11 @@ else:
 
         elif Data < Quantile25.loc['cstAt40Min'][0]:
             jsonObj = {
-                "label": "{} {}\n\n\n{}\n{} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "is greater than", Quantile25.loc['cstAt40Min'][0]),
+                "label": "{},{} = {},,,{},{} {} {},".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be grater than", Quantile25.loc['cstAt40Min'][0]),
                 "pointStyle": "circle",
                 "data": [{
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
+                    "x": 5,
+                    "y": 95,
                     "r": 9,
                     "keepTooltipOpen": 'true'
                 }],
@@ -186,11 +188,11 @@ else:
     elif np.logical_and(DataIndex == 'cstAt40', cst40 == 2):
         if Data > Quantile25.loc['cstAt40Max'][0]:
             jsonObj = {
-                "label": "{} {}\n\n\n{}\n{} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "is less than", Quantile25.loc['cstAt40Max'][0]),
+                "label": "{},{} = {},,,{},{} {} {},".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be less than", Quantile25.loc['cstAt40Max'][0]),
                 "pointStyle": "circle",
                 "data": [{
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
+                    "x": 5,
+                    "y": 95,
                     "r": 9,
                     "keepTooltipOpen": 'true'
                 }],
@@ -200,11 +202,11 @@ else:
 
         else:
             jsonObj = {
-                "label": "{} {}".format("Observation", str(Data)),
+                "label": "{},{} = {}".format("Observation", DataIndex, str(Data)),
                 "pointStyle": "circle",
                 "data": [{
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
+                    "x": 5,
+                    "y": 95,
                     "r": 9,
                     "keepTooltipOpen": 'true'
                 }],
@@ -214,11 +216,11 @@ else:
     elif np.logical_and(DataIndex == 'cstAt40', cst40 == 3):
         if Data < Quantile25.loc['cstAt40Min'][0]:
             jsonObj = {
-                "label": "{} {}\n\n\n{}\n{} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "is greater than", Quantile25.loc['cstAt40Min'][0]),
+                "label": "{},{} = {},,,{},{} {} {},".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be grater than", Quantile25.loc['cstAt40Min'][0]),
                 "pointStyle": "circle",
                 "data": [{
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
+                    "x": 5,
+                    "y": 95,
                     "r": 9,
                     "keepTooltipOpen": 'true'
                 }],
@@ -227,11 +229,11 @@ else:
             jsonObject["BelowRange"]["datasets"].append(jsonObj)
         else:
             jsonObj = {
-                "label": "{} {}".format("Observation", str(Data)),
+                "label": "{},{} = {}".format("Observation", DataIndex, str(Data)),
                 "pointStyle": "circle",
                 "data": [{
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
+                    "x": 5,
+                    "y": 75,
                     "r": 9,
                     "keepTooltipOpen": 'true'
                 }],
@@ -242,11 +244,11 @@ else:
     elif DataIndex == 'FlashPoint':
         if Data > Quantile25.loc['FlashPoint'][0]:
             jsonObj = {
-                "label": "{} {}".format("Observation", str(Data)),
+                "label": "{},{} = {}".format("Observation", DataIndex, str(Data)),
                 "pointStyle": "circle",
                 "data": [{
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
+                    "x": 5,
+                    "y": 75,
                     "r": 9,
                     "keepTooltipOpen": 'true'
                 }],
@@ -256,11 +258,11 @@ else:
 
         elif Data < Quantile25.loc['FlashPoint'][0]:
             jsonObj = {
-                "label": "{} {}\n\n\n{}\n{} {} {}".format("Observation", str(Data), "Remedy", DataIndex, "is grater than", Quantile25.loc['FlashPoint'][0]),
+                "label": "{},{} = {},,,{},{} {} {},".format("Observation", DataIndex, str(Data), "Remedy", DataIndex, "should be grater than", Quantile25.loc['FlashPoint'][0]),
                 "pointStyle": "circle",
                 "data": [{
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
+                    "x": 5,
+                    "y": 95,
                     "r": 9,
                     "keepTooltipOpen": 'true'
                 }],
