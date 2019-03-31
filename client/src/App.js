@@ -14,8 +14,8 @@ class App extends Component {
   /* onUpdateUser = props => {
     this.props.onUpdateUser("sudheer");
   }; */
+
   render() {
-    console.log("Redux:Props", this.props);
     return (
       <Container fluid="true" style={{ padding: "0" }}>
         <header>

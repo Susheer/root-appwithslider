@@ -10,11 +10,9 @@ import SnackbarNotification from "../Util-Component/SnackbarNotification";
 import Draggable from "react-draggable";
 import Paper from "@material-ui/core/Paper";
 import Dialog from "@material-ui/core/Dialog";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import { MuiPickersUtilsProvider, DatePicker } from "material-ui-pickers";
 
-import DateFnsUtils from "@date-io/date-fns";
+import LinearProgress from "@material-ui/core/LinearProgress";
+
 import $ from "jquery";
 
 import {
@@ -29,6 +27,8 @@ import {
 class AuditTrail extends Component {
   state = {
     redirect: false,
+    LProgressStatus: false,
+    blockScreen: false,
     isFileUploaded: false,
     fUploadPercentege: 0,
     showFileUploadProgress: "none", // none or block
@@ -128,19 +128,60 @@ class AuditTrail extends Component {
     //alert("render redirect");
   };
 
+  disableLinearProgress = () => {
+    let flag = this.state.LProgressStatus;
+    if (flag) {
+      this.setState({ LProgressStatus: false, blockScreen: false });
+    }
+  };
+
+  enableLinearProgress = () => {
+    let flag = this.state.LProgressStatus;
+    if (!flag) {
+      this.setState({ LProgressStatus: true, blockScreen: true });
+    }
+  };
+  toggleLinearProgress = () => {
+    let flag = this.state.LProgressStatus;
+
+    this.setState({ LProgressStatus: !flag });
+  };
+
   render() {
     const { datePickerSelectedDateFrom, datePickerSelectedDateTo } = this.state;
+    let LinearProgressStyle = {
+      marginTop: "0px",
+      marginLeft: "0px",
+      marginRight: "0px",
+      padding: "0px",
+      display: "none"
+    };
+
+    if (this.state.LProgressStatus) {
+      LinearProgressStyle.display = "block";
+    }
+
     return (
-      <React.Fragment>
+      <div className="container-fluid Jumbotron-report">
         {this.renderRedirect()}
         <SnackbarNotification
           message={this.state.snakbarMessage}
           state={this.state}
         />
-
-        <Jumbotron style={{ paddingTop: "10px" }}>
-          <Row style={{ paddingTop: "15px" }}>
-            <Col xl={10} style={{ border: "none" }}>
+        <Row style={{ border: "1px solid none", height: "5px", width: "" }}>
+          <Col
+            style={{
+              border: "1px solid none",
+              paddingLeft: "0px",
+              paddingRight: "0px"
+            }}
+          >
+            <LinearProgress style={LinearProgressStyle} />
+          </Col>
+        </Row>
+        <div style={{ paddingTop: "10px" }}>
+          <Row style={{}}>
+            <Col md={10} style={{ border: "none" }}>
               <Link to="/">
                 <i
                   className="fas fa-home"
@@ -248,61 +289,38 @@ class AuditTrail extends Component {
               </Container> */}
             </Col>
           </Row>{" "}
-        </Jumbotron>
-        {/* date picker module start*/}
+        </div>
         <Dialog
-          open={this.state.datePickerOpen}
-          onClose={this.handleDatePickerClickClose}
+          open={this.state.blockScreen}
+          onClose={this.disableBlockScreen}
           labelledby="draggable-dialog-title"
-          PaperComponent={PaperComponent}
+          style={{
+            backgroundColor: "transparent",
+            opacity: "0",
+            cursor: "not-allowed"
+          }}
+
+          /*  PaperComponent={PaperComponent} */
         >
-          <DialogContent>
-            <Row style={{ border: "none" }}>
-              <Col style={{ border: "none" }}>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                  <DatePicker
-                    margin="normal"
-                    label="From"
-                    value={datePickerSelectedDateFrom}
-                    onChange={this.handleDatePickerDateChangeFrom}
-                  />
-                </MuiPickersUtilsProvider>
-              </Col>
-              <Col style={{ border: "none" }}>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                  <DatePicker
-                    margin="normal"
-                    label="To"
-                    value={datePickerSelectedDateTo}
-                    onChange={this.handleDatePickerDateChangeTo}
-                  />
-                </MuiPickersUtilsProvider>
-              </Col>
-            </Row>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleDatePickerClickClose} color="secondary">
-              Cancel
-            </Button>
-            <Button onClick={this.handleDatePickerClickClose} color="secondary">
-              Pick
-            </Button>
-          </DialogActions>
+          <br /> {/* <div></div> */}
         </Dialog>
-        {/*   <p>ProgressStatus{this.props.location.state.bubbleId}</p> */}
-      </React.Fragment>
+        {/*   <button onClick={this.toggleLinearProgress}>
+          ToogelTop}ProgreeeBar
+        </button> */}
+      </div>
     );
   }
 
-  loadDataFromMachine() {
+  loadDataFromMachine = () => {
     console.log("Loadig data from machine - invoked");
     //SecondAbovX_MAX,SecondAbovX_MIN,SecondAbovY_MAX,SecondAbovY_MIN,SecondWithinRngX_MAX
     // SecondWithinRngX_MIN,SecondWithinRngY_MAX,SecondWithinRngY_MIN
     //SecondBelowRngX_MAX,SecondBelowRngY_MAX,SecondBelowRngY_MAX,SecondBelowRngY_MIN
+
     try {
-      let AuditTrailWRD = JSON.parse(sessionStorage.getItem("AuditTrailWRD"));
-      let AuditTrailARD = JSON.parse(sessionStorage.getItem("AuditTrailARD"));
-      let AuditTrailBRD = JSON.parse(sessionStorage.getItem("AuditTrailBRD"));
+      let AuditTrailWRD = JSON.parse(localStorage.getItem("AuditTrailWRD"));
+      let AuditTrailARD = JSON.parse(localStorage.getItem("AuditTrailARD"));
+      let AuditTrailBRD = JSON.parse(localStorage.getItem("AuditTrailBRD"));
 
       this.state.response.WithinRange.datasets = AuditTrailWRD;
       this.state.response.AboveRange.datasets = AuditTrailARD;
@@ -363,7 +381,9 @@ class AuditTrail extends Component {
         sessionStorage.getItem("SecondWithinRngY_MIN") === null
           ? this.state.response.WithinRange.y_min
           : sessionStorage.getItem("SecondWithinRngY_MIN");
+
       this.setState({});
+
       console.log("Audit-trail$LoadDataFromMachine()$->Loaded");
       //   console.log("After setState", this.state.response.WithinRange);
     } catch (err) {
@@ -374,9 +394,11 @@ class AuditTrail extends Component {
         err
       );
     }
-  }
+  };
 
   getDidChartData() {
+    // show top progressBar
+    this.enableLinearProgress();
     // call this method when loading data from server
     // if success==="true"
     // store data to instanse as will stire it local storage
@@ -386,9 +408,9 @@ class AuditTrail extends Component {
     // if success===false then just show then message to the page itself
     // dont call loadDataFrom machine
 
-    sessionStorage.setItem("AuditTrailWRD", null);
-    sessionStorage.setItem("AuditTrailARD", null);
-    sessionStorage.setItem("AuditTrailBRD", null);
+    localStorage.setItem("AuditTrailWRD", null);
+    localStorage.setItem("AuditTrailARD", null);
+    localStorage.setItem("AuditTrailBRD", null);
     console.log("fetching data from server");
     $.ajax({
       type: "POST",
@@ -488,15 +510,15 @@ class AuditTrail extends Component {
             console.error("Audit-trail: error while saveing to ls");
           }
           //  this.setState({ response: data });
-          sessionStorage.setItem(
+          localStorage.setItem(
             "AuditTrailWRD",
             JSON.stringify(data.WithinRange.datasets)
           );
-          sessionStorage.setItem(
+          localStorage.setItem(
             "AuditTrailARD",
             JSON.stringify(data.AboveRange.datasets)
           );
-          sessionStorage.setItem(
+          localStorage.setItem(
             "AuditTrailBRD",
             JSON.stringify(data.BelowRange.datasets)
           );
@@ -510,6 +532,9 @@ class AuditTrail extends Component {
       error: err => {
         this.handleSnackBar("Server connection failed. ");
       }
+    }).done(({ json }) => {
+      //  disable top progressBar
+      this.disableLinearProgress();
     });
   }
 }
