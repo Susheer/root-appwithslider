@@ -26,33 +26,34 @@ except:
 
 
 df = df.dropna(how='all', axis=1)
-# print(df)
+# print(df['Comment'])
 Lookup_row = Quant25_Table.find_one()
 Lookup_db = pd.DataFrame.from_dict(Lookup_row, orient='index').drop('_id')
 # print(Lookup_db)
 
-cst40=0
+cst40 = 0
 
 if np.logical_and('cstAt40Max' in Lookup_db.index, 'cstAt40Min' in Lookup_db.index):
     Lookup_clm = Lookup_db.drop(['cstAt40Max', 'cstAt40Min']).index
     Lookup_clm = np.append(Lookup_clm, 'cstAt40')
-    cst40=1
+    cst40 = 1
 elif 'cstAt40Max' in Lookup_db.index:
     Lookup_clm = Lookup_db.drop('cstAt40Max').index
     Lookup_clm = np.append(Lookup_clm, 'cstAt40')
-    cst40=2
+    cst40 = 2
 elif 'cstAt40Min' in Lookup_db.index:
     Lookup_clm = Lookup_db.drop('cstAt40Min').index
     Lookup_clm = np.append(Lookup_clm, 'cstAt40')
-    cst40=3
-else: Lookup_clm = Lookup_db.index
+    cst40 = 3
+else:
+    Lookup_clm = Lookup_db.index
 
-
-
+# print(df.loc[0]['Comment'])
 
 
 jsonObject = {
     "success": "true",
+    "Comments": df.loc[0]['Comment'],
     "WithinRange": {
         "x_min": -10,
         "x_max": 120,
@@ -80,10 +81,6 @@ Act = 0
 Bct = 0
 
 for clm in range(Lookup_clm.__len__()):
-    # print('***********',Lookup_clm[clm])
-    # print('##########',Lookup_clm[clm] in df.columns)
-    # print('&&&&&&&&&&',Lookup_clm[clm] in df.columns)
-    # if np.logical_and(Lookup_clm[clm] in df.columns, df.iloc[0][Lookup_clm[clm]] != None):
     if Lookup_clm[clm] in df.columns:
         # print('not nan-----------', df.iloc[0][Lookup_clm[clm]])
         if np.logical_and(Lookup_clm[clm] != 'cstAt40', Lookup_clm[clm] != 'FlashPoint'):
@@ -113,9 +110,8 @@ for clm in range(Lookup_clm.__len__()):
                 }
                 jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
-
         else:
-            if np.logical_and(Lookup_clm[clm] == 'cstAt40', cst40==1):
+            if np.logical_and(Lookup_clm[clm] == 'cstAt40', cst40 == 1):
                 if df.iloc[0][Lookup_clm[clm]] > Lookup_db.loc['cstAt40Max'][0]:
                     jsonObj = {
                         "label": Lookup_clm[clm],
@@ -205,7 +201,6 @@ for clm in range(Lookup_clm.__len__()):
                     }
                     jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
-
             elif Lookup_clm[clm] == 'FlashPoint':
                 if df.iloc[0][Lookup_clm[clm]] > Lookup_db.loc['FlashPoint'][0]:
                     jsonObj = {
@@ -219,7 +214,6 @@ for clm in range(Lookup_clm.__len__()):
                         "backgroundColor": "#008000"
                     }
                     jsonObject["WithinRange"]["datasets"].append(jsonObj)
-
 
                 elif df.iloc[0][Lookup_clm[clm]] < Lookup_db.loc['FlashPoint'][0]:
                     jsonObj = {

@@ -33,6 +33,7 @@ class AuditTrail extends Component {
     fUploadPercentege: 0,
     showFileUploadProgress: "none", // none or block
     response: {
+      Comments: "",
       WithinRange: {
         x_max: 120,
         x_min: 0,
@@ -275,18 +276,10 @@ class AuditTrail extends Component {
           </Row>
           <Row style={{ marginTop: "10%" }}>
             {" "}
-            <Col
-              md={{ offset: 1 }}
-              style={{ border: "none", paddingTop: "6px" }}
-              className="text-center"
-            >
-              {/*  <Container>
-                <Row>
-                  <Col sm={1} xl={12} md={8}> */}
-
-              {/*   </Col>
-                </Row>
-              </Container> */}
+            <Col className="text-center">
+              <p>
+                <strong>Comment</strong>: {this.state.response.Comments}
+              </p>
             </Col>
           </Row>{" "}
         </div>
@@ -426,6 +419,7 @@ class AuditTrail extends Component {
           console.log("Audit-trail:$.ajex():success_block:true");
 
           this.state.response.AboveRange.datasets = data.AboveRange.datasets;
+          this.state.response.Comments = data.Comments;
           this.state.response.WithinRange.datasets = data.WithinRange.datasets;
           this.state.response.BelowRange.datasets = data.BelowRange.datasets;
 
