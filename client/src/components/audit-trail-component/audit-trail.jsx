@@ -374,7 +374,7 @@ class AuditTrail extends Component {
         sessionStorage.getItem("SecondWithinRngY_MIN") === null
           ? this.state.response.WithinRange.y_min
           : sessionStorage.getItem("SecondWithinRngY_MIN");
-
+      this.state.response.Comments = sessionStorage.getItem("comment");
       this.setState({});
 
       console.log("Audit-trail$LoadDataFromMachine()$->Loaded");
@@ -519,6 +519,7 @@ class AuditTrail extends Component {
         } else {
           this.handleSnackBar(data.Error[0].details);
         }
+        sessionStorage.setItem("comment", data.Comments);
         //  this.handleSnackBar("Audit-trail: Response came from server ");
         // window.location.reload();
         this.setState({});
