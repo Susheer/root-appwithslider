@@ -11,15 +11,44 @@ import * as zoom from "chartjs-plugin-zoom";
 //import { min } from "date-fns";
 //import { func } from "prop-types";
 
+const TotleNumber = ({ value }) => (
+  <div
+    className="badge badge-info"
+    style={{
+      marginTop: "57px",
+      marginLeft: "100px",
+      fontSize: "24px",
+      fontFamily: "arial"
+    }}
+  >
+    {value}
+  </div>
+);
+
+const Note = ({ value }) => (
+  <div>
+    <br />
+    <br />
+
+    <p className="text-center">
+      <span className="font-weight-bold">Note:</span> {value}
+    </p>
+  </div>
+);
+
 class Chartjs_2 extends Component {
   state = {
     bubbleId: 0,
+    displayNote: false,
     pageIdentity: this.props.parentName,
     redirect: false,
     response: this.props.response,
     open: false,
     snakbarMessage: "Please wait...",
-    xmax: 0
+    xmax: 0,
+    disableAboveRangeChart: false,
+    disableWithinRangeChart: false,
+    disableBelowRangeChart: false
   };
   setRedirect = bubble => {
     this.setState({ bubbleId: bubble, redirect: true });
@@ -100,6 +129,9 @@ class Chartjs_2 extends Component {
                 label = arr;
               }
             }
+          } else {
+            let arr2 = label.split(",");
+            label = arr2;
           }
 
           return label;
@@ -211,7 +243,10 @@ class Chartjs_2 extends Component {
         /* <button onClick={this.setRedirect}>Redirect</button> */
       }
       // console.log("BubbleId", data.label.trim().slice(-1));
-      let val = data.label.trim().split(" ");
+
+      let data1 = data.label.trim().split(",")[0];
+      console.warn("PointClicked", data1);
+      let val = data1.trim().split(" ");
       if (val) {
         if (val.length === 1) {
           this.setRedirect(val[0].trim());
@@ -240,10 +275,50 @@ class Chartjs_2 extends Component {
 
   render() {
     const { AboveRange, WithinRange, BelowRange } = this.props.response;
-
+    let Alen, Blen, Wlen;
     console.warn("AboveRange in render ", AboveRange);
     console.warn("BelowRange range in render", BelowRange);
     console.warn("WithinRange in render", WithinRange);
+    let RngConditionText = " if > 200 ";
+
+    console.log("PageIdentity", this.state.pageIdentity);
+    if (this.state.pageIdentity === "REPORT") {
+      Alen = AboveRange.datasets.length;
+      Blen = BelowRange.datasets.length;
+      Wlen = WithinRange.datasets.length;
+      let len = {
+        AboveLength: Alen,
+        BelowLen: Blen,
+        WithinLen: Wlen
+      };
+
+      if (Alen > 200) {
+        this.state.disableAboveRangeChart = true;
+      } else {
+        this.state.disableAboveRangeChart = false;
+      }
+      if (Blen > 200) {
+        this.state.disableBelowRangeChart = true;
+      } else {
+        this.state.disableBelowRangeChart = false;
+      }
+      if (Wlen > 200) {
+        this.state.disableWithinRangeChart = true;
+      } else {
+        this.state.disableWithinRangeChart = false;
+      }
+      if (
+        this.state.disableBelowRangeChart ||
+        this.state.disableBelowRangeChart ||
+        this.state.disableAboveRangeChart
+      ) {
+        this.state.displayNote = true;
+      } else {
+        this.state.displayNote = false;
+      }
+      console.log("------------Report page-------------- ");
+      console.log("TotalLength", len);
+    }
 
     return (
       <React.Fragment>
@@ -255,94 +330,98 @@ class Chartjs_2 extends Component {
               <p>Below Range</p>
             </div>
             <div>
-              <Bubble
-                ref="chart1"
-                type="bubble"
-                data={BelowRange}
-                options={{
-                  responsive: true,
-                  aspectRatio: false,
-                  tooltips: {
-                    displayColors: false,
-                    callbacks: {
-                      label: function(tooltipItem, data) {
-                        var datasetLabel = "";
-                        // var label = data.labels[tooltipItem.index];
-                        var label =
-                          data.datasets[tooltipItem.datasetIndex].label || "";
-                        if (data.datasets.length === 1) {
-                          // console.log("One tooltips found", data.datasets[0]);
-                          // object exists in data array
-                          if (data.datasets[0].data.length === 1) {
-                            // check if tooltips key is exists
-                            let flag = Object.keys(
-                              data.datasets[0].data[0]
-                            ).includes("keepTooltipOpen");
+              {this.state.disableBelowRangeChart ? (
+                <TotleNumber value={Blen} />
+              ) : (
+                <Bubble
+                  ref="chart1"
+                  type="bubble"
+                  data={BelowRange}
+                  options={{
+                    responsive: true,
+                    aspectRatio: false,
+                    tooltips: {
+                      displayColors: false,
+                      callbacks: {
+                        label: function(tooltipItem, data) {
+                          var datasetLabel = "";
+                          // var label = data.labels[tooltipItem.index];
+                          var label =
+                            data.datasets[tooltipItem.datasetIndex].label || "";
 
-                            if (flag) {
-                              console.log("[Chart.js] point detected");
-                              let arr = label.split(",");
-                              label = arr;
+                          if (data.datasets.length === 1) {
+                            // console.log("One tooltips found", data.datasets[0]);
+                            // object exists in data array
+                            if (data.datasets[0].data.length === 1) {
+                              // check if tooltips key is exists
+                              let flag = Object.keys(
+                                data.datasets[0].data[0]
+                              ).includes("keepTooltipOpen");
+
+                              if (flag) {
+                                console.log("[Chart.js] point detected");
+                                let arr = label.split(",");
+                                label = arr;
+                              }
                             }
                           }
+                          return label;
                         }
-
-                        return label;
+                      },
+                      custom: function(tooltip) {
+                        if (!tooltip) return;
+                        tooltip.displayColors = false;
                       }
                     },
-                    custom: function(tooltip) {
-                      if (!tooltip) return;
-                      tooltip.displayColors = false;
+                    animation: {
+                      duration: 0
+                    },
+                    hover: {
+                      animationDuration: 0
+                    },
+                    maintainAspectRatio: false,
+                    pan: {
+                      enabled: true,
+                      mode: "xy"
+                    },
+                    zoom: {
+                      enabled: true,
+                      mode: "xy"
+                    },
+
+                    layout: {
+                      padding: {}
+                    },
+                    scales: {
+                      xAxes: [
+                        {
+                          type: "linear",
+                          position: "bottom",
+                          display: false,
+                          ticks: {
+                            // below range
+                            max: parseInt(BelowRange.x_max),
+
+                            min: parseInt(BelowRange.x_min) //BelowRange.x_min
+                          }
+                        }
+                      ],
+                      yAxes: [
+                        {
+                          type: "linear",
+                          display: false,
+                          ticks: {
+                            min: parseInt(BelowRange.y_min),
+                            max: parseInt(BelowRange.y_max) //
+                          }
+                        }
+                      ]
                     }
-                  },
-                  animation: {
-                    duration: 0
-                  },
-                  hover: {
-                    animationDuration: 0
-                  },
-                  maintainAspectRatio: false,
-                  pan: {
-                    enabled: true,
-                    mode: "xy"
-                  },
-                  zoom: {
-                    enabled: true,
-                    mode: "xy"
-                  },
-
-                  layout: {
-                    padding: {}
-                  },
-                  scales: {
-                    xAxes: [
-                      {
-                        type: "linear",
-                        position: "bottom",
-                        display: false,
-                        ticks: {
-                          // below range
-                          max: parseInt(BelowRange.x_max),
-
-                          min: parseInt(BelowRange.x_min) //BelowRange.x_min
-                        }
-                      }
-                    ],
-                    yAxes: [
-                      {
-                        type: "linear",
-                        display: false,
-                        ticks: {
-                          min: parseInt(BelowRange.y_min),
-                          max: parseInt(BelowRange.y_max) //
-                        }
-                      }
-                    ]
-                  }
-                }}
-                legend={{ display: false }}
-                getElementAtEvent={this.handleBubble}
-              />
+                  }}
+                  legend={{ display: false }}
+                  getElementAtEvent={this.handleBubble}
+                />
+              )}
             </div>
           </Col>
 
@@ -351,49 +430,53 @@ class Chartjs_2 extends Component {
               <p>Within Range</p>
             </div>
             <div>
-              <Bubble
-                ref={reference => (this.chartReference = reference)}
-                type="bubble"
-                data={WithinRange}
-                options={{
-                  ...this.chartOpt,
-                  responsive: true,
-                  aspectRatio: false,
-                  animation: {
-                    duration: 0
-                  },
-                  hover: {
-                    animationDuration: 0
-                  },
-                  scales: {
-                    xAxes: [
-                      {
-                        type: "linear",
-                        position: "bottom",
-                        display: false,
-                        ticks: {
-                          // below range
-                          max: parseInt(WithinRange.x_max),
+              {this.state.disableWithinRangeChart ? (
+                <TotleNumber value={Wlen} />
+              ) : (
+                <Bubble
+                  ref={reference => (this.chartReference = reference)}
+                  type="bubble"
+                  data={WithinRange}
+                  options={{
+                    ...this.chartOpt,
+                    responsive: true,
+                    aspectRatio: false,
+                    animation: {
+                      duration: 0
+                    },
+                    hover: {
+                      animationDuration: 0
+                    },
+                    scales: {
+                      xAxes: [
+                        {
+                          type: "linear",
+                          position: "bottom",
+                          display: false,
+                          ticks: {
+                            // below range
+                            max: parseInt(WithinRange.x_max),
 
-                          min: parseInt(WithinRange.x_min) //BelowRange.x_min
+                            min: parseInt(WithinRange.x_min) //BelowRange.x_min
+                          }
                         }
-                      }
-                    ],
-                    yAxes: [
-                      {
-                        type: "linear",
-                        display: false,
-                        ticks: {
-                          min: parseInt(WithinRange.y_min),
-                          max: parseInt(WithinRange.y_max) //
+                      ],
+                      yAxes: [
+                        {
+                          type: "linear",
+                          display: false,
+                          ticks: {
+                            min: parseInt(WithinRange.y_min),
+                            max: parseInt(WithinRange.y_max) //
+                          }
                         }
-                      }
-                    ]
-                  }
-                }}
-                legend={{ display: false }}
-                getElementAtEvent={this.handleBubble}
-              />
+                      ]
+                    }
+                  }}
+                  legend={{ display: false }}
+                  getElementAtEvent={this.handleBubble}
+                />
+              )}
             </div>
           </Col>
           <Col md={4} className="chartAboveRange">
@@ -401,89 +484,111 @@ class Chartjs_2 extends Component {
               <p>Above Range</p>
             </div>
             <div>
-              <Bubble
-                type="bubble"
-                data={AboveRange}
-                options={{
-                  responsive: true,
-                  aspectRatio: false,
-                  tooltips: {
-                    displayColors: false,
-                    callbacks: {
-                      label: function(tooltipItem, data) {
-                        var datasetLabel = "";
-                        // var label = data.labels[tooltipItem.index];
-                        var label =
-                          data.datasets[tooltipItem.datasetIndex].label || "";
-                        if (data.datasets.length === 1) {
-                          // console.log("One tooltips found", data.datasets[0]);
-                          // object exists in data array
-                          if (data.datasets[0].data.length === 1) {
-                            // check if tooltips key is exists
-                            let flag = Object.keys(
-                              data.datasets[0].data[0]
-                            ).includes("keepTooltipOpen");
+              {this.state.disableAboveRangeChart ? (
+                <TotleNumber value={Alen} />
+              ) : (
+                <Bubble
+                  type="bubble"
+                  data={AboveRange}
+                  options={{
+                    responsive: true,
+                    aspectRatio: false,
+                    tooltips: {
+                      displayColors: false,
+                      callbacks: {
+                        label: function(tooltipItem, data) {
+                          var datasetLabel = "";
+                          // var label = data.labels[tooltipItem.index];
+                          var label =
+                            data.datasets[tooltipItem.datasetIndex].label || "";
+                          if (data.datasets.length === 1) {
+                            // console.log("One tooltips found", data.datasets[0]);
+                            // object exists in data array
+                            if (data.datasets[0].data.length === 1) {
+                              // check if tooltips key is exists
+                              let flag = Object.keys(
+                                data.datasets[0].data[0]
+                              ).includes("keepTooltipOpen");
 
-                            if (flag) {
-                              console.log("[Chart.js] point detected");
-                              let arr = label.split(",");
-                              label = arr;
+                              if (flag) {
+                                console.log("[Chart.js] point detected");
+                                let arr = label.split(",");
+                                label = arr;
+                              }
                             }
+                          } else {
+                            let arr2 = label.split(",");
+                            label = arr2;
                           }
-                        }
 
-                        return label;
+                          return label;
+                        }
+                      },
+                      custom: function(tooltip) {
+                        if (!tooltip) return;
+                        tooltip.displayColors = false;
                       }
                     },
-                    custom: function(tooltip) {
-                      if (!tooltip) return;
-                      tooltip.displayColors = false;
-                    }
-                  },
-                  animation: {
-                    duration: 0
-                  },
-                  hover: {
-                    animationDuration: 0
-                  },
-                  maintainAspectRatio: false,
-                  pan: {
-                    enabled: true,
-                    mode: "x"
-                  },
-                  zoom: {
-                    enabled: true,
-                    mode: "x"
-                  },
-                  layout: { padding: {} },
-                  scales: {
-                    xAxes: [
-                      {
-                        type: "linear",
-                        position: "bottom",
-                        display: false,
-                        ticks: {
-                          // AboveRange
+                    animation: {
+                      duration: 0
+                    },
+                    hover: {
+                      animationDuration: 0
+                    },
+                    maintainAspectRatio: false,
+                    pan: {
+                      enabled: true,
+                      mode: "x"
+                    },
+                    zoom: {
+                      enabled: true,
+                      mode: "x"
+                    },
+                    layout: { padding: {} },
+                    scales: {
+                      xAxes: [
+                        {
+                          type: "linear",
+                          position: "bottom",
+                          display: false,
+                          ticks: {
+                            // AboveRange
 
-                          max: parseInt(AboveRange.x_max), //,
-                          min: parseInt(AboveRange.x_min) //
+                            max: parseInt(AboveRange.x_max), //,
+                            min: parseInt(AboveRange.x_min) //
+                          }
                         }
-                      }
-                    ],
-                    yAxes: [
-                      {
-                        display: false,
-                        ticks: {
-                          max: parseInt(AboveRange.y_max), //,
-                          min: parseInt(AboveRange.y_min)
+                      ],
+                      yAxes: [
+                        {
+                          display: false,
+                          ticks: {
+                            max: parseInt(AboveRange.y_max), //,
+                            min: parseInt(AboveRange.y_min)
+                          }
                         }
-                      }
-                    ]
-                  }
-                }}
-                legend={{ display: false }}
-                getElementAtEvent={this.handleBubble}
-              />
+                      ]
+                    }
+                  }}
+                  legend={{ display: false }}
+                  getElementAtEvent={this.handleBubble}
+                />
+              )}
+            </div>
+          </Col>
+        </Row>
+
+        <Row className="justify-content-md-center">
+          <Col md="auto">
+            <div className="text-center" style={{ marginTop: "12px" }}>
+              {this.state.displayNote ? (
+                <Note value="Number of reports are more then 200 , please use slider" />
+              ) : (
+                <div>
+                  <br />
+                  <br />
+                </div>
+              )}
             </div>
           </Col>
         </Row>

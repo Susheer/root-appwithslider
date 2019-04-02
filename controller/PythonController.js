@@ -74,7 +74,7 @@ let PythonController = {
         // Otherwise treat as a log entry
 
         console.log(e);
-        console.log("Error", result);
+        //  console.log("Error", result);
         return res.json({
           success: false,
           Error: [
@@ -116,6 +116,7 @@ let PythonController = {
         res.send(jsonResponse);
         // console.log(JSON.parse(result));
       } catch (e) {
+        //console.log(result);
         console.log(e);
         return res.json({
           success: false,
@@ -169,7 +170,7 @@ let PythonController = {
         // console.log(JSON.parse(result));
       } catch (e) {
         // Otherwise treat as a log entry
-        // console.log("Parsing Error:" + e);
+        console.log("Parsing Error:" + e);
         //console.log(result.toString());
         return res.json({
           success: false,
@@ -205,7 +206,7 @@ let PythonController = {
     processd.stdout.on("data", data => {
       console.log("Python Code getSlider.py started");
       result += data.toString();
-      console.log(result);
+      // console.log(result);
     });
 
     processd.stdout.on("end", () => {
@@ -291,7 +292,7 @@ let PythonController = {
             }
           ]
         });
-        console.log("[SummaryReport] result in catch", result);
+        //console.log("[SummaryReport] result in catch", result);
       }
     });
     processd.on("error", err => {

@@ -7,27 +7,28 @@ import random
 import json
 import sys
 
-currentDT = datetime.now()
+currentDT = datetime.now() - timedelta(days=183)
 cur_Dt = time.mktime(datetime.strptime(
     currentDT.strftime("%d/%m/%Y "), "%d/%m/%Y ").timetuple())
 cur_Date = str(int(cur_Dt))+'000'
 
 
-# from_d='24'
+# from_d='6'
 from_d = sys.argv[1]
 
 
 def Date_Picker(fromDate, toDate):
     myclient = MongoClient('localhost', 27017)
     mydb = myclient["Artis"]
-    Result_Table = mydb["Result_tbl"]
+    reportTable = mydb["report_tbl"]
+    # Result_Table = mydb["Result_tbl"]
     # res = Result_Table.find()
 
     Dataframe = pd.DataFrame()
 
     try:
-        Dataframe = pd.DataFrame(list(Result_Table.find(
-            {'Date': {'$lt': int(toDate), '$gte': int(fromDate)}})))
+        Dataframe = pd.DataFrame(list(reportTable.find(
+            {'DateBunkered': {'$lt': int(toDate), '$gte': int(fromDate)}})))
         if Dataframe.empty:
             errorobj = {
                 "success": "false",
@@ -46,12 +47,7 @@ def Date_Picker(fromDate, toDate):
         Eobject = json.dumps(errorobj)
         print(Eobject)
         exit()
-        # print(eval)
-
-    # x_max = Dataframe['IQR_main'].max()/100
-    # x_min = Dataframe['IQR_main'].min()/x_max-20
-    # y_max = Dataframe['Row_Main'].max()/100
-    # y_min = Dataframe['Row_Main'].min()/y_max-20
+    arr = pd.to_datetime(Dataframe['DateBunkered'], unit='ms').dt.strftime('%m/%d/%Y')
     In_rad = 0
     A_red = 0
     In_RangeArray = Dataframe.loc[Dataframe['Limit'] == "In_Range"]
@@ -111,50 +107,39 @@ def Date_Picker(fromDate, toDate):
         }
     }
     for row in range(Dataframe.__len__()):
-        if Dataframe.iloc[row]['Range'] == Dataframe.iloc[row]['In_Range']:
-            # if np.logical_and(Dataframe.iloc[row]['Range'] == 0, Dataframe.iloc[row]['Range_1'] == 0):
-            #     if Dataframe.iloc[row]['Range_2'] > 20:
-            jsonObj = {
-                "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
-                "pointStyle": "circle",
-                "data": [{
-                    # "x": Dataframe.iloc[row]['IQR_main']/x_max,
-                    # "y": Dataframe.iloc[row]['Row_Main']/y_max,
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
-                    "r": In_rad
-                }],
-                "backgroundColor": "#008000"
-            }
-            jsonObject["WithinRange"]["datasets"].append(jsonObj)
+        if np.logical_and(Dataframe.iloc[row]['Range'] != 0, Dataframe.iloc[row]['In_Range'] != 0):
+            if Dataframe.iloc[row]['Limit'] == 'In_Range':
+                jsonObj = {
+                    "label": "{} {}, {} {}".format("Report", Dataframe.iloc[row]['SampleNumber'],
+                                               Dataframe.iloc[row]['VesselName'], arr[row]),
+                    "pointStyle": "circle",
+                    "data": [{
+                        # "x": Dataframe.iloc[row]['IQR_main']/x_max,
+                        # "y": Dataframe.iloc[row]['Row_Main']/y_max,
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": In_rad
+                    }],
+                    "backgroundColor": "#008000"
+                }
+                jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
-        else:
-            jsonObj = {
-                "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
-                "pointStyle": "circle",
-                "data": [{
-                    # "x": Dataframe.iloc[row]['IQR_main']/x_max,
-                    # "y": Dataframe.iloc[row]['Row_Main']/y_max,
-                    "x": random.randint(1, 100),
-                    "y": random.randint(1, 100),
-                    "r": A_red
-                }],
-                "backgroundColor": "#FFA500"
-            }
-            jsonObject["AboveRange"]["datasets"].append(jsonObj)
+            else:
+                jsonObj = {
+                    "label": "{} {}, {} {}".format("Report", Dataframe.iloc[row]['SampleNumber'],
+                                               Dataframe.iloc[row]['VesselName'], arr[row]),
+                    "pointStyle": "circle",
+                    "data": [{
+                        # "x": Dataframe.iloc[row]['IQR_main']/x_max,
+                        # "y": Dataframe.iloc[row]['Row_Main']/y_max,
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": A_red
+                    }],
+                    "backgroundColor": "#FFA500"
+                }
+                jsonObject["AboveRange"]["datasets"].append(jsonObj)
 
-        # elif Dataframe.iloc[row]['Range_1'] != 0:
-        #     jsonObj = {
-        #         "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
-        #         "pointStyle": "circle",
-        #         "data": [{
-        #             "x": Dataframe.iloc[row]['IQR_main']/x_max,
-        #             "y": Dataframe.iloc[row]['Row_Main']/y_max,
-        #             "r": 9
-        #         }],
-        #         "backgroundColor": "#FFA500"
-        #     }
-        #     jsonObject["BelowRange"]["datasets"].append(jsonObj)
 
     data = json.dumps(jsonObject)
     return data
@@ -166,7 +151,7 @@ if from_d == '0':
 
 elif from_d == '6':
     # print("11111111111")
-    date_N_days_ago = datetime.now() - timedelta(days=365)
+    date_N_days_ago = datetime.now() - timedelta(days=548)
     ago_d = date_N_days_ago.strftime("%d/%m/%Y")
     fr_date = time.mktime(datetime.strptime(ago_d, "%d/%m/%Y").timetuple())
     from_Date = str(int(fr_date)) + '000'
@@ -175,7 +160,7 @@ elif from_d == '6':
 
 elif from_d == '12':
     # print("22222222222222222222")
-    date_N_days_ago = datetime.now() - timedelta(days=91)
+    date_N_days_ago = datetime.now() - timedelta(days=274)
     ago_d = date_N_days_ago.strftime("%d/%m/%Y")
     fr_date = time.mktime(datetime.strptime(ago_d, "%d/%m/%Y").timetuple())
     from_Date = str(int(fr_date)) + '000'
@@ -184,7 +169,7 @@ elif from_d == '12':
 
 elif from_d == '18':
     # print("33333333333333333")
-    date_N_days_ago = datetime.now() - timedelta(days=30)
+    date_N_days_ago = datetime.now() - timedelta(days=213)
     ago_d = date_N_days_ago.strftime("%d/%m/%Y")
     fr_date = time.mktime(datetime.strptime(ago_d, "%d/%m/%Y").timetuple())
     from_Date = str(int(fr_date)) + '000'
@@ -192,7 +177,7 @@ elif from_d == '18':
 
 elif from_d == '24':
     # print("44444444444")
-    date_N_days_ago = datetime.now() - timedelta(days=15)
+    date_N_days_ago = datetime.now() - timedelta(days=198)
     ago_d = date_N_days_ago.strftime("%d/%m/%Y")
     fr_date = time.mktime(datetime.strptime(ago_d, "%d/%m/%Y").timetuple())
     from_Date = str(int(fr_date)) + '000'
@@ -200,7 +185,7 @@ elif from_d == '24':
 
 else:
     # print("5555555555")
-    date_N_days_ago = datetime.now() - timedelta(days=7)
+    date_N_days_ago = datetime.now() - timedelta(days=190)
     ago_d = date_N_days_ago.strftime("%d/%m/%Y")
     fr_date = time.mktime(datetime.strptime(ago_d, "%d/%m/%Y").timetuple())
     from_Date = str(int(fr_date)) + '000'

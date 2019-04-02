@@ -6,7 +6,7 @@ from pymongo import MongoClient
 import random
 
 index = sys.argv[1]
-# index='A14128001'
+# index='A18344019'
 myclient = MongoClient('localhost', 27017)
 mydb = myclient["Artis"]
 reportTable = mydb["report_tbl"]
@@ -25,8 +25,8 @@ except:
     print(Eobject)
 
 
-df = df.dropna(how='all', axis=1)
-# print(df['Comment'])
+# df = df.dropna(how='all', axis=1)
+# print(df)
 Lookup_row = Quant25_Table.find_one()
 Lookup_db = pd.DataFrame.from_dict(Lookup_row, orient='index').drop('_id')
 # print(Lookup_db)
@@ -48,12 +48,23 @@ elif 'cstAt40Min' in Lookup_db.index:
 else:
     Lookup_clm = Lookup_db.index
 
+
+dff = df[Lookup_clm]
+dff = dff.dropna(how='all', axis=1)
+
+column = dff.columns
+# print(column)
+
 # print(df.loc[0]['Comment'])
-
-
+if df.loc[0]['Comment'] != None:
+    data = df.loc[0]['Comment']
+    # print('---------------', df.loc[0]['Comment'])
+else:
+    data = 'N/A'
+# print(data,'-----------------')
 jsonObject = {
     "success": "true",
-    "Comments": df.loc[0]['Comment'],
+    "Comments": data,
     "WithinRange": {
         "x_min": -10,
         "x_max": 120,
@@ -80,13 +91,41 @@ Wct = 0
 Act = 0
 Bct = 0
 
-for clm in range(Lookup_clm.__len__()):
-    if Lookup_clm[clm] in df.columns:
-        # print('not nan-----------', df.iloc[0][Lookup_clm[clm]])
-        if np.logical_and(Lookup_clm[clm] != 'cstAt40', Lookup_clm[clm] != 'FlashPoint'):
-            if df.iloc[0][Lookup_clm[clm]] > Lookup_db.loc[Lookup_clm[clm]][0]:
+for clm in range(column.__len__()):
+    # if column[clm] in df.columns:
+    # print('not nan-----------', df.iloc[0][Lookup_clm[clm]])
+    if np.logical_and(column[clm] != 'cstAt40', column[clm] != 'FlashPoint'):
+        if df.iloc[0][column[clm]] > Lookup_db.loc[column[clm]][0]:
+            jsonObj = {
+                "label": column[clm],
+                "pointStyle": "circle",
+                "data": [{
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": 9,
+                }],
+                "backgroundColor": "#FFA500"
+            }
+            jsonObject["AboveRange"]["datasets"].append(jsonObj)
+
+        elif df.iloc[0][column[clm]] < Lookup_db.loc[column[clm]][0]:
+            jsonObj = {
+                "label": column[clm],
+                "pointStyle": "circle",
+                "data": [{
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": 9,
+                }],
+                "backgroundColor": "#008000"
+            }
+            jsonObject["WithinRange"]["datasets"].append(jsonObj)
+
+    else:
+        if np.logical_and(column[clm] == 'cstAt40', cst40 == 1):
+            if df.iloc[0][column[clm]] > Lookup_db.loc['cstAt40Max'][0]:
                 jsonObj = {
-                    "label": Lookup_clm[clm],
+                    "label": column[clm],
                     "pointStyle": "circle",
                     "data": [{
                         "x": random.randint(1, 100),
@@ -97,9 +136,9 @@ for clm in range(Lookup_clm.__len__()):
                 }
                 jsonObject["AboveRange"]["datasets"].append(jsonObj)
 
-            elif df.iloc[0][Lookup_clm[clm]] < Lookup_db.loc[Lookup_clm[clm]][0]:
+            elif np.logical_and(df.iloc[0][column[clm]] > Lookup_db.loc['cstAt40Min'][0], df.iloc[0][column[clm]] < Lookup_db.loc['cstAt40Max'][0]):
                 jsonObj = {
-                    "label": Lookup_clm[clm],
+                    "label": column[clm],
                     "pointStyle": "circle",
                     "data": [{
                         "x": random.randint(1, 100),
@@ -110,123 +149,95 @@ for clm in range(Lookup_clm.__len__()):
                 }
                 jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
-        else:
-            if np.logical_and(Lookup_clm[clm] == 'cstAt40', cst40 == 1):
-                if df.iloc[0][Lookup_clm[clm]] > Lookup_db.loc['cstAt40Max'][0]:
-                    jsonObj = {
-                        "label": Lookup_clm[clm],
-                        "pointStyle": "circle",
-                        "data": [{
-                            "x": random.randint(1, 100),
-                            "y": random.randint(1, 100),
-                            "r": 9,
-                        }],
-                        "backgroundColor": "#FFA500"
-                    }
-                    jsonObject["AboveRange"]["datasets"].append(jsonObj)
+            elif df.iloc[0][column[clm]] < Lookup_db.loc['cstAt40Min'][0]:
+                jsonObj = {
+                    "label": column[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#FFA500"
+                }
+                jsonObject["BelowRange"]["datasets"].append(jsonObj)
+        elif np.logical_and(column[clm] == 'cstAt40', cst40 == 2):
+            if df.iloc[0][column[clm]] > Lookup_db.loc['cstAt40Max'][0]:
+                jsonObj = {
+                    "label": column[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#FFA500"
+                }
+                jsonObject["AboveRange"]["datasets"].append(jsonObj)
+            else:
+                jsonObj = {
+                    "label": column[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#008000"
+                }
+                jsonObject["WithinRange"]["datasets"].append(jsonObj)
+        elif np.logical_and(column[clm] == 'cstAt40', cst40 == 3):
+            if df.iloc[0][column[clm]] < Lookup_db.loc['cstAt40Min'][0]:
+                jsonObj = {
+                    "label": column[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#FFA500"
+                }
+                jsonObject["BelowRange"]["datasets"].append(jsonObj)
+            else:
+                jsonObj = {
+                    "label": column[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#008000"
+                }
+                jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
-                elif np.logical_and(df.iloc[0][Lookup_clm[clm]] > Lookup_db.loc['cstAt40Min'][0], df.iloc[0][Lookup_clm[clm]] < Lookup_db.loc['cstAt40Max'][0]):
-                    jsonObj = {
-                        "label": Lookup_clm[clm],
-                        "pointStyle": "circle",
-                        "data": [{
-                            "x": random.randint(1, 100),
-                            "y": random.randint(1, 100),
-                            "r": 9,
-                        }],
-                        "backgroundColor": "#008000"
-                    }
-                    jsonObject["WithinRange"]["datasets"].append(jsonObj)
+        elif column[clm] == 'FlashPoint':
+            if df.iloc[0][column[clm]] > Lookup_db.loc['FlashPoint'][0]:
+                jsonObj = {
+                    "label": column[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#008000"
+                }
+                jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
-                elif df.iloc[0][Lookup_clm[clm]] < Lookup_db.loc['cstAt40Min'][0]:
-                    jsonObj = {
-                        "label": Lookup_clm[clm],
-                        "pointStyle": "circle",
-                        "data": [{
-                            "x": random.randint(1, 100),
-                            "y": random.randint(1, 100),
-                            "r": 9,
-                        }],
-                        "backgroundColor": "#FFA500"
-                    }
-                    jsonObject["BelowRange"]["datasets"].append(jsonObj)
-            elif np.logical_and(Lookup_clm[clm] == 'cstAt40', cst40 == 2):
-                if df.iloc[0][Lookup_clm[clm]] > Lookup_db.loc['cstAt40Max'][0]:
-                    jsonObj = {
-                        "label": Lookup_clm[clm],
-                        "pointStyle": "circle",
-                        "data": [{
-                            "x": random.randint(1, 100),
-                            "y": random.randint(1, 100),
-                            "r": 9,
-                        }],
-                        "backgroundColor": "#FFA500"
-                    }
-                    jsonObject["AboveRange"]["datasets"].append(jsonObj)
-                else:
-                    jsonObj = {
-                        "label": Lookup_clm[clm],
-                        "pointStyle": "circle",
-                        "data": [{
-                            "x": random.randint(1, 100),
-                            "y": random.randint(1, 100),
-                            "r": 9,
-                        }],
-                        "backgroundColor": "#008000"
-                    }
-                    jsonObject["WithinRange"]["datasets"].append(jsonObj)
-            elif np.logical_and(Lookup_clm[clm] == 'cstAt40', cst40 == 3):
-                if df.iloc[0][Lookup_clm[clm]] < Lookup_db.loc['cstAt40Min'][0]:
-                    jsonObj = {
-                        "label": Lookup_clm[clm],
-                        "pointStyle": "circle",
-                        "data": [{
-                            "x": random.randint(1, 100),
-                            "y": random.randint(1, 100),
-                            "r": 9,
-                        }],
-                        "backgroundColor": "#FFA500"
-                    }
-                    jsonObject["BelowRange"]["datasets"].append(jsonObj)
-                else:
-                    jsonObj = {
-                        "label": Lookup_clm[clm],
-                        "pointStyle": "circle",
-                        "data": [{
-                            "x": random.randint(1, 100),
-                            "y": random.randint(1, 100),
-                            "r": 9,
-                        }],
-                        "backgroundColor": "#008000"
-                    }
-                    jsonObject["WithinRange"]["datasets"].append(jsonObj)
-
-            elif Lookup_clm[clm] == 'FlashPoint':
-                if df.iloc[0][Lookup_clm[clm]] > Lookup_db.loc['FlashPoint'][0]:
-                    jsonObj = {
-                        "label": Lookup_clm[clm],
-                        "pointStyle": "circle",
-                        "data": [{
-                            "x": random.randint(1, 100),
-                            "y": random.randint(1, 100),
-                            "r": 9,
-                        }],
-                        "backgroundColor": "#008000"
-                    }
-                    jsonObject["WithinRange"]["datasets"].append(jsonObj)
-
-                elif df.iloc[0][Lookup_clm[clm]] < Lookup_db.loc['FlashPoint'][0]:
-                    jsonObj = {
-                        "label": Lookup_clm[clm],
-                        "pointStyle": "circle",
-                        "data": [{
-                            "x": random.randint(1, 100),
-                            "y": random.randint(1, 100),
-                            "r": 9,
-                        }],
-                        "backgroundColor": "#FFA500"
-                    }
-                    jsonObject["BelowRange"]["datasets"].append(jsonObj)
+            elif df.iloc[0][column[clm]] < Lookup_db.loc['FlashPoint'][0]:
+                jsonObj = {
+                    "label": column[clm],
+                    "pointStyle": "circle",
+                    "data": [{
+                        "x": random.randint(1, 100),
+                        "y": random.randint(1, 100),
+                        "r": 9,
+                    }],
+                    "backgroundColor": "#FFA500"
+                }
+                jsonObject["BelowRange"]["datasets"].append(jsonObj)
 
 
 Data = json.dumps(jsonObject)
