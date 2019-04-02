@@ -251,7 +251,11 @@ class AuditTrail extends Component {
                     variant="outline-dark"
                     style={{ borderRadius: "0", paddingTop: "0px" }}
                   >
-                    Report {this.props.location.state.bubbleId}
+                    Report{" "}
+                    <span style={{ fontFamily: "arial" }}>
+                      {" "}
+                      {this.props.location.state.bubbleId}
+                    </span>
                   </BtsrpButton>
                 </ButtonGroup>
               </ButtonToolbar>

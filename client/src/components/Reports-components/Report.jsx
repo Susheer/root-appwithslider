@@ -338,6 +338,7 @@ class Report extends Component {
       // console.log(json);
       //  sessionStorage.setItem(SLIDER_VALUE_SESSION, 24);
       // window.location.reload();
+      this.setState({ fileBeingProcessedSnackbaropen: false });
       this.disableBlockScreen();
     });
   };
@@ -587,11 +588,17 @@ class Report extends Component {
               />
             </Col>
           </Row>
-          <Row style={{ paddingTop: "12px" }}>
+          <Row
+            style={{ paddingTop: "12px", border: "none" }}
+            className="justify-content-md-center"
+          >
             <Col
-              md={{ offset: 1 }}
-              style={{ border: "none", paddingTop: "6px" }}
-              className="text-center"
+              md={2}
+              style={{
+                border: "none",
+                paddingTop: "6px",
+                paddingLeft: "100px"
+              }}
             >
               <form
                 action="/api/report"
@@ -648,14 +655,12 @@ class Report extends Component {
               />
             </Col>
             <Col
-              md={{ offset: 1 }}
+              md={8}
               style={{ border: "none", paddingTop: "6px" }}
               className="text-center"
             >
               <ButtonToolbar
                 style={{
-                  padding: "0",
-                  margin: "0",
                   display: "block"
                 }}
                 aria-label="Toolbar with button groups"
@@ -694,10 +699,7 @@ class Report extends Component {
                 </ButtonGroup>
               </ButtonToolbar>
             </Col>
-            <Col
-              md={{ offset: 4 }}
-              style={{ border: "none", paddingTop: "6px" }}
-            />
+            <Col md={2} />
           </Row>
           <Row style={{ marginTop: "10%" }}>
             <Col xl={2} md={2} sm={2}>
@@ -715,7 +717,7 @@ class Report extends Component {
               {/*   blank col for space */}
             </Col>
           </Row>
-          <Row style={{ marginTop: "8%" }}>
+          <Row style={{ marginTop: "3%" }}>
             <Col md={{ offset: 3 }} style={{}} className="text-center">
               <Col
                 md={{ offset: 1 }}

@@ -11,8 +11,8 @@ var config = {
 
   ErrorMsg: {
     NOT_FOUND: "Record not found",
-    //ParsingErr: "Unexpected response from python"
-    ParsingErr: "Something went wrong",
+    // ParsingErr: "Unexpected response from python",
+    ParsingErr: "Something went wrong please try again",
     PointError: "Value not found"
   }
 

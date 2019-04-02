@@ -34,17 +34,10 @@ except:
 
 df = df.dropna(how='all', axis=1)
 
-# //////////////// Access I`th Index Row from mongoDb
-# ASingleRow = reportTable.find({}).__getitem__(int(index))
-# df = pd.DataFrame.from_dict(ASingleRow, orient='index').drop('_id'))
-# df = pd.DataFrame(list(reportTable.find({'Index': int(index)})))
-# print(df.columns)
+
 if DataIndex in df.columns:
     data = df.iloc[0][DataIndex]
-    # print(data)
-# print(data)
-# dff = df.apply(lambda x: pd.to_numeric(x, errors='coerce')).fillna(0)
-# arr = np.array(df)
+
 Data = df.iloc[0][DataIndex]
 # print(Data)
 
@@ -53,10 +46,7 @@ Quantile25 = Quant25_Table.find_one()
 # Quantile75 = Quant75_Table.find_one()
 
 Quantile25 = pd.DataFrame.from_dict(Quantile25, orient='index').drop('_id')
-# Quantile75 = pd.DataFrame.from_dict(Quantile75, orient='index').drop('_id')
 
-# print(Quantile25.loc[DataIndex][0])
-# print(Quantile75.loc[DataIndex])
 cst40 = 0
 
 if np.logical_and('cstAt40Max' in Quantile25.index, 'cstAt40Min' in Quantile25.index):
@@ -126,20 +116,7 @@ if np.logical_and(DataIndex != 'cstAt40', DataIndex != 'FlashPoint'):
         }
 
         jsonObject["AboveRange"]["datasets"].append(jsonObj)
-    # else:
-    #     jsonObj = {
-    #         "label": str(data),
-    #         "pointStyle": "circle",
-    #
-    #         "data": [{
-    #             "x": 25,
-    #             "y": 70,
-    #             "r": 9,
-    #             "keepTooltipOpen": 'true'
-    #         }],
-    #         "backgroundColor": "#008000"
-    #     }
-    #     jsonObject["WithinRange"]["datasets"].append(jsonObj)
+
 else:
     if np.logical_and(DataIndex == 'cstAt40', cst40 == 1):
         if Data > Quantile25.loc['cstAt40Max'][0]:

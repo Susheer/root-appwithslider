@@ -9,13 +9,15 @@ import random
 from datetime import datetime, timedelta
 import time
 
-currentDT = datetime.now()
+currentDT = datetime.now() - timedelta(days=183)
 cur_Dt = time.mktime(datetime.strptime(
     currentDT.strftime("%d/%m/%Y "), "%d/%m/%Y ").timetuple())
 cur_Date = str(int(cur_Dt))+'000'
 
+index = 5
+
 path = './Shared/'+sys.argv[1]
-# path='/home/dst/Documents/Data_Science/mmmm.xlsx'
+# path='/home/dst/Documents/Data_Science/all_reports.xlsx'
 sheet_name = 'AnalysisResults'
 
 myclient = MongoClient('localhost', 27017)
@@ -28,7 +30,7 @@ except:
 mydb = myclient["Artis"]
 reportTable = mydb["report_tbl"]
 Lookup_Table = mydb["Lookup_tbl"]
-Result_Table = mydb["Result_tbl"]
+# Result_Table = mydb["Result_tbl"]
 
 
 MainDataF = pd.DataFrame()
@@ -67,7 +69,7 @@ ComparitionD = ComparitionD.dropna(how='all', axis=1)
 # print(ComparitionD.loc[1])
 
 MainComData = pd.DataFrame()
-MainComData = ComparitionD.loc[5]
+MainComData = ComparitionD.loc[index]
 
 
 clmn = MainComData.drop(['Specification', 'Grade', 'Type',
@@ -75,10 +77,8 @@ clmn = MainComData.drop(['Specification', 'Grade', 'Type',
 MainComData = MainComData.drop(
     ['Specification', 'Grade', 'Type']).dropna(how='all')
 Lookupclmn = MainComData.index
-# print(MainComData)
 clmn = np.append(clmn, 'cstAt40')
-# print(clmn)
-# print(Lookupclmn)
+
 ReportData = MainDataF[clmn]
 ReportData = ReportData.dropna(how='all', axis=1)
 
@@ -89,19 +89,14 @@ A_df = ReportData.copy()
 B_df = ReportData.copy()
 Zero_Array = (W_df == 0).astype(int).sum(axis=1)
 Range = ReportData.shape
-# print(ReportData.shape)
-# NaN_Value=W_df.isna().sum()
-# print(NaN_Value)
+
 NaN_Value = W_df.apply(lambda x: x.count(), axis=1)
-# print(NaN_Value)
+
 RangeDataFrame = DataFrame()
 
 RangeDataFrame['NaN_Values'] = pd.Series(NaN_Value)
 RangeDataFrame['NaN_Values'] = RangeDataFrame.sub([Range[1]])
 
-# print(W_df.iloc[3])
-
-# print(W_df.loc[])
 
 for index in range(clmn.__len__()):
     arr = np.array([])
@@ -150,16 +145,23 @@ RangeDataFrame['In_Range'] = RangeDataFrame['In_Range'] - \
 RangeDataFrame = RangeDataFrame.drop(columns='NaN_Values')
 
 
-RangeDataFrame['Limit'] = np.where((RangeDataFrame['Range'] == RangeDataFrame['In_Range']),  'In_Range', 'Above_Range')
+RangeDataFrame['Limit'] = np.where(
+    ((RangeDataFrame['Range'] == RangeDataFrame['In_Range'])),  'In_Range', 'Above_Range')
+
 
 # print(RangeDataFrame)
 RangeDataFrame['Index'] = pd.Series(MainDataF['SampleNumber'])
 RangeDataFrame['Date'] = pd.Series(MainDataF['DateBunkered'])
-# RangeDataFrame['Outof_Range'] = pd.Series(OutOfRangeArray)
-# RangeDataFrame['Below_Range'] = pd.Series(BelowRangeArray)
-
 # print(RangeDataFrame)
+MainDataF['Limit'] = pd.Series(RangeDataFrame['Limit'])
+MainDataF['Range'] = pd.Series(RangeDataFrame['Range'])
+MainDataF['In_Range'] = pd.Series(RangeDataFrame['In_Range'])
 
+
+# print(MainDataF)
+records = json.loads(MainDataF.T.to_json()).values()
+
+# print(MainDataF['Comment'])
 
 jsonObject = {
     "success": "true",
@@ -187,19 +189,15 @@ jsonObject = {
     }
 }
 
-date_N_days_ago = datetime.now() - timedelta(days=15)
-ago_d = date_N_days_ago.strftime("%d/%m/%Y")
-fr_date = time.mktime(datetime.strptime(ago_d, "%d/%m/%Y").timetuple())
-from_Date = str(int(fr_date)) + '000'
-# print(Date_Picker(from_Date, cur_Date))
+date_N_days_ago = datetime.now() - timedelta(days=198)
 
 
 try:
     reportTable.insert(records)
     records1 = json.loads(MainComData.T.to_json())
     Lookup_Table.insert(records1)
-    result = json.loads(RangeDataFrame.T.to_json()).values()
-    Result_Table.insert(result)
+    # result = json.loads(RangeDataFrame.T.to_json()).values()
+    # Result_Table.insert(result)
 except:
     errorobj = {
         "success": "false",
@@ -209,14 +207,10 @@ except:
     print(Eobject)
     exit()
 
-
-# data = json.dumps(jsonObject)
-
-Dataframe = pd.DataFrame()
-
+Dataframe = DataFrame()
 try:
-    Dataframe = pd.DataFrame(list(Result_Table.find(
-        {'Date': {'$lt': int(cur_Date), '$gte': int(from_Date)}})))
+    Dataframe = MainDataF[(MainDataF['DateBunkered'] > date_N_days_ago) & (
+        MainDataF['DateBunkered'] < currentDT)]
     if Dataframe.empty:
         errorobj = {
             "success": "false",
@@ -225,8 +219,6 @@ try:
         Eobject = json.dumps(errorobj)
         # print(Eobject)
         exit()
-        # print("====================================")
-
 except:
     errorobj = {
         "success": "false",
@@ -237,9 +229,8 @@ except:
     exit()
 
 
-
-In_rad=0
-A_red=0
+In_rad = 0
+A_red = 0
 In_RangeArray = Dataframe.loc[Dataframe['Limit'] == "In_Range"]
 In_count = In_RangeArray.shape
 Above_RangeArray = Dataframe.loc[Dataframe['Limit'] == "Above_Range"]
@@ -272,41 +263,43 @@ elif Abov_count[0] < 5000:
 elif Abov_count[0] < 7000:
     A_red = 4
 
+# Dataframe['DateBunkered'] = pd.Series((Dataframe['DateBunkered'].dt.strftime('%m/%d/%Y')))
+arrr = Dataframe['DateBunkered'].dt.strftime('%m/%d/%Y')
+index_Arr = arrr.index
 
-
-
+# Dataframe['Date'] = pd.Series(arrr)
+# print(Dataframe['Date'])
 for row in range(Dataframe.__len__()):
-    if Dataframe.iloc[row]['Range'] == Dataframe.iloc[row]['In_Range']:
-        # if np.logical_and(Dataframe.iloc[row]['Range'] == 0, Dataframe.iloc[row]['Range_1'] == 0):
-        #     if Dataframe.iloc[row]['Range_2'] > 20:
-        jsonObj = {
-            "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
-            "pointStyle": "circle",
-            "data": [{
-                # "x": Dataframe.iloc[row]['IQR_main']/x_max,
-                # "y": Dataframe.iloc[row]['Row_Main']/y_max,
-                "x": random.randint(1, 100),
-                "y": random.randint(1, 100),
-                "r": In_rad
-            }],
-            "backgroundColor": "#008000"
-        }
-        jsonObject["WithinRange"]["datasets"].append(jsonObj)
+    if np.logical_and(Dataframe.iloc[row]['Range'] != 0, Dataframe.iloc[row]['In_Range'] != 0):
+        if Dataframe.iloc[row]['Limit'] == 'In_Range':
+            jsonObj = {
+                "label": "{} {}, {} {}".format("Report", Dataframe.iloc[row]['SampleNumber'], Dataframe.iloc[row]['VesselName'],  arrr[index_Arr[row]]),
+                "pointStyle": "circle",
+                "data": [{
+                    # "x": Dataframe.iloc[row]['IQR_main']/x_max,
+                    # "y": Dataframe.iloc[row]['Row_Main']/y_max,
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": In_rad
+                }],
+                "backgroundColor": "#008000"
+            }
+            jsonObject["WithinRange"]["datasets"].append(jsonObj)
 
-    else:
-        jsonObj = {
-            "label": "{} {}".format("Report", Dataframe.iloc[row]['Index']),
-            "pointStyle": "circle",
-            "data": [{
-                # "x": Dataframe.iloc[row]['IQR_main']/x_max,
-                # "y": Dataframe.iloc[row]['Row_Main']/y_max,
-                "x": random.randint(1, 100),
-                "y": random.randint(1, 100),
-                "r": A_red
-            }],
-            "backgroundColor": "#FFA500"
-        }
-        jsonObject["AboveRange"]["datasets"].append(jsonObj)
+        else:
+            jsonObj = {
+                "label": "{} {}, {} {}".format("Report", Dataframe.iloc[row]['SampleNumber'], Dataframe.iloc[row]['VesselName'], arrr[index_Arr[row]]),
+                "pointStyle": "circle",
+                "data": [{
+                    # "x": Dataframe.iloc[row]['IQR_main']/x_max,
+                    # "y": Dataframe.iloc[row]['Row_Main']/y_max,
+                    "x": random.randint(1, 100),
+                    "y": random.randint(1, 100),
+                    "r": A_red
+                }],
+                "backgroundColor": "#FFA500"
+            }
+            jsonObject["AboveRange"]["datasets"].append(jsonObj)
 
 
 data = json.dumps(jsonObject)
